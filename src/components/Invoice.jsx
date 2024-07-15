@@ -78,7 +78,7 @@ const Invoice = ({ data }) => {
 
   return (
     <div className=''>
-      <button onClick={generatePDF} className="px-4 py-2 bg-blue-500 text-white rounded-md max-w-4xl fixed bottom-2 md:bottom-10 right-2 md:right-10">Generate PDF</button>
+      <button onClick={generatePDF} className="px-4 py-2 bg-blue-500 text-white rounded-md max-w-4xl fixed bottom-4 md:bottom-10 right-4 md:right-10">Generate PDF</button>
     </div>
   );
 };

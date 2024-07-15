@@ -20,8 +20,8 @@ const InvoiceForm = ({ onSubmit }) => {
       ifscCode: 'CNRB0019592',
     },
     taxDetails: {
-      cgst: '',
-      sgst: '',
+      cgst: '9',
+      sgst: '9',
       igst: '',
       otherCharges: '',
       roundedOff: '',
@@ -52,7 +52,8 @@ const InvoiceForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 mx-auto max-w-4xl bg-white border-2 border-black shadow-lg rounded-lg py-10 my-10">
+    <div className='p-2'>
+    <form onSubmit={handleSubmit} className="p-6 mx-auto max-w-4xl bg-white border-blue-300 border-2 shadow-lg rounded-lg py-10 my-10">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">Invoice Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -313,6 +314,7 @@ const InvoiceForm = ({ onSubmit }) => {
         </button>
       </div>
     </form>
+    </div>
   );
 };
 
