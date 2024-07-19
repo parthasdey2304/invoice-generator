@@ -47,15 +47,16 @@ const Invoice = ({ data }) => {
       if (index > 0) doc.addPage();
 
       // Add copy label
-      doc.setFontSize(8);
+      doc.setFontSize(9);
+      doc.setFont('Cambria Math');
       doc.text(label, pageWidth - 10, 5, { align: 'right' });
 
       // Add title and basic information
-      doc.setFontSize(16);
+      doc.setFontSize(17);
       doc.text('M/S RAM DHANI SHAW', pageWidth / 2, 19, { align: 'center' });
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       doc.text('TAX INVOICE', pageWidth / 2, 10, { align: 'center' });
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       doc.text('PROPRIETOR: ASHOK KUMAR SHAW', pageWidth / 2, 25, { align: 'center' });
       doc.text('31/A PULIN KHATICK ROAD KOLKATA – 700015', pageWidth / 2, 29, { align: 'center' });
       doc.text(`GST IN 19AKWPS4940B1ZO`, margin, 35);
@@ -64,21 +65,21 @@ const Invoice = ({ data }) => {
       // Add invoice details
       doc.line(margin, 38, pageWidth - margin, 38);
       doc.text(`Invoice No: ${data.invoiceNo}`, margin, 42);
-      doc.text(`Invoice Date: ${data.invoiceDate}`, margin, 46);
-      doc.text('State: WEST BENGAL    Code- 19', margin, 50);
+      doc.text(`Invoice Date: ${data.invoiceDate}`, margin, 47);
+      doc.text('State: WEST BENGAL    Code- 19', margin, 52);
       doc.text(`Transport Name: ${data.transportName}`, pageWidth / 2, 42);
-      doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 46);
-      doc.text(`Place of Supply: ${data.placeOfSupply}`, pageWidth / 2, 50);
+      doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 47);
+      doc.text(`Place of Supply: ${data.placeOfSupply}`, pageWidth / 2, 52);
 
       // Add receiver details
-      doc.line(margin, 53, pageWidth - margin, 53);
-      doc.text('DETAILS OF RECEIVER [BILLED TO PARTY]', pageWidth / 2, 58, { align: 'center' });
-      doc.line(margin, 61, pageWidth - margin, 61);
-      doc.text(`NAME: ${data.receiverName}`, margin, 66);
-      doc.text(`ADDRESS: ${data.receiverAddress}`, margin, 70);
-      doc.text(`GST IN: ${data.receiverGST}`, margin, 74);
-      doc.text(`STATE: ${data.receiverState}`, margin, 78);
-      doc.text(`CODE: ${data.receiverCode}`, pageWidth / 2, 78);
+      doc.line(margin, 55, pageWidth - margin, 55);
+      doc.text('DETAILS OF RECEIVER [BILLED TO PARTY]', pageWidth / 2, 60, { align: 'center' });
+      doc.line(margin, 63, pageWidth - margin, 63);
+      doc.text(`NAME: ${data.receiverName}`, margin, 68);
+      doc.text(`ADDRESS: ${data.receiverAddress}`, margin, 73);
+      doc.text(`GST IN: ${data.receiverGST}`, margin, 78);
+      doc.text(`STATE: ${data.receiverState}`, margin, 83);
+      doc.text(`CODE: ${data.receiverCode}`, pageWidth / 2, 83);
 
       // Add table
       const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT'];
@@ -99,9 +100,9 @@ const Invoice = ({ data }) => {
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
-        startY: 85, // Adjusted startY to push the table down
+        startY: 87, // Adjusted startY to push the table down
         theme: 'grid',
-        styles: { fontSize: 7, cellPadding: 1 },
+        styles: { fontSize: 8, cellPadding: 1, halign: 'center' }, // Center-align content
         headStyles: { fillColor: [200, 200, 200], textColor: 20 },
         columnStyles: {
           0: { cellWidth: 10 },
@@ -124,7 +125,7 @@ const Invoice = ({ data }) => {
 
       // Add totals and bank details
       const finalY = doc.lastAutoTable.finalY;
-      doc.setFontSize(7);
+      doc.setFontSize(8);
       doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin, finalY + 5);
       doc.text(`TOTAL AMOUNT BEFORE TAX: ${totalAmountBeforeTax}`, pageWidth - margin, finalY + 10, { align: 'right' });
       doc.text(`ADD – CGST @ 9%: ${cgst}`, pageWidth - margin, finalY + 14, { align: 'right' });
