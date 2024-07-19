@@ -107,10 +107,10 @@ const Invoice = ({ data }) => {
         columnStyles: {
           0: { cellWidth: 10 },
           1: { cellWidth: 80 },
-          2: { cellWidth: 25 },
+          2: { cellWidth: 30 },
           3: { cellWidth: 20 },
           4: { cellWidth: 20 },
-          5: { cellWidth: 25 },
+          5: { cellWidth: 30 },
         },
         tableWidth: 'auto', // Adjusted to fit the table within the page width
         margin: { left: margin, right: margin }, // Added margin to fit the table within the page width
@@ -145,7 +145,7 @@ const Invoice = ({ data }) => {
     });
 
     // Save the PDF
-    doc.save('invoice.pdf');
+    doc.save(`${data.invoiceNo}_${data.receiverName}.pdf`);
   };
 
   return (
