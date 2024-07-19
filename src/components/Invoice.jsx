@@ -38,7 +38,6 @@ const Invoice = ({ data }) => {
       "Orignial Buyer's copy",
       "Orignial Buyer's copy",
       "Orignial Buyer's copy",
-      "Orignial Buyer's copy",
       "Orignial Seller's copy",
       "Orignial Transport's copy",
     ];
@@ -47,70 +46,76 @@ const Invoice = ({ data }) => {
       if (index > 0) doc.addPage();
 
       // Add copy label
-      doc.setFontSize(9);
+      doc.setFontSize(11);
       doc.setFont('Cambria Math');
-      doc.text(label, pageWidth - 10, 5, { align: 'right' });
+      doc.text(label, pageWidth - 10, 7, { align: 'right' });
 
       // Add title and basic information
-      doc.setFontSize(17);
-      doc.text('M/S RAM DHANI SHAW', pageWidth / 2, 19, { align: 'center' });
+      doc.setFontSize(19);
+      doc.text('M/S RAM DHANI SHAW', pageWidth / 2, 21, { align: 'center' });
+      doc.setFontSize(13);
+      doc.text('TAX INVOICE', pageWidth / 2, 12, { align: 'center' });
       doc.setFontSize(11);
-      doc.text('TAX INVOICE', pageWidth / 2, 10, { align: 'center' });
-      doc.setFontSize(9);
-      doc.text('PROPRIETOR: ASHOK KUMAR SHAW', pageWidth / 2, 25, { align: 'center' });
-      doc.text('31/A PULIN KHATICK ROAD KOLKATA – 700015', pageWidth / 2, 29, { align: 'center' });
-      doc.text(`GST IN 19AKWPS4940B1ZO`, margin, 35);
-      doc.text(`MOBILE- 8820416613`, pageWidth - margin, 35, { align: 'right' });
+      doc.text('PROPRIETOR: ASHOK KUMAR SHAW', pageWidth / 2, 27, { align: 'center' });
+      doc.text('31/A PULIN KHATICK ROAD KOLKATA – 700015', pageWidth / 2, 31, { align: 'center' });
+      doc.text(`GST IN 19AKWPS4940B1ZO`, margin, 37);
+      doc.text(`MOBILE- 8820416613`, pageWidth - margin, 37, { align: 'right' });
 
       // Add invoice details
-      doc.line(margin, 38, pageWidth - margin, 38);
-      doc.text(`Invoice No: ${data.invoiceNo}`, margin, 42);
-      doc.text(`Invoice Date: ${data.invoiceDate}`, margin, 47);
-      doc.text('State: WEST BENGAL    Code- 19', margin, 52);
-      doc.text(`Transport Name: ${data.transportName}`, pageWidth / 2, 42);
-      doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 47);
-      doc.text(`Place of Supply: ${data.placeOfSupply}`, pageWidth / 2, 52);
+      doc.line(margin, 39, pageWidth - margin, 39);
+      doc.text(`Invoice No: ${data.invoiceNo}`, margin, 44);
+      doc.text(`Invoice Date: ${data.invoiceDate}`, margin, 49);
+      doc.text('State: WEST BENGAL    Code- 19', margin, 54);
+      doc.text(`Transport Name: ${data.transportName}`, pageWidth / 2, 44);
+      doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 49);
+      doc.text(`Place of Supply: ${data.placeOfSupply}`, pageWidth / 2, 54);
 
       // Add receiver details
-      doc.line(margin, 55, pageWidth - margin, 55);
-      doc.text('DETAILS OF RECEIVER [BILLED TO PARTY]', pageWidth / 2, 60, { align: 'center' });
-      doc.line(margin, 63, pageWidth - margin, 63);
-      doc.text(`NAME: ${data.receiverName}`, margin, 68);
-      doc.text(`ADDRESS: ${data.receiverAddress}`, margin, 73);
-      doc.text(`GST IN: ${data.receiverGST}`, margin, 78);
-      doc.text(`STATE: ${data.receiverState}`, margin, 83);
-      doc.text(`CODE: ${data.receiverCode}`, pageWidth / 2, 83);
+      doc.line(margin, 57, pageWidth - margin, 57);
+      doc.text('DETAILS OF RECEIVER [BILLED TO PARTY]', pageWidth / 2, 62, { align: 'center' });
+      doc.line(margin, 65, pageWidth - margin, 65);
+      doc.text(`NAME: ${data.receiverName}`, margin, 70);
+      doc.text(`ADDRESS: ${data.receiverAddress}`, margin, 75);
+      doc.text(`GST IN: ${data.receiverGST}`, margin, 80);
+      doc.text(`STATE: ${data.receiverState}`, margin, 85);
+      doc.text(`CODE: ${data.receiverCode}`, margin + 65, 85);
+      doc.text(`BAGS: ${data.numberOfBags}`, margin + 110, 85);
 
       // Add table
-      const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT'];
-      let tableRows = data.items.map((item, index) => [
-        index + 1,
-        item.description,
-        item.hsnCode,
-        item.quantity,
-        item.rate,
-        (item.quantity * item.rate).toFixed(2),
-      ]);
+      const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT (Rs)', 'AMOUNT (Paise)'];
+      let tableRows = data.items.map((item, index) => {
+        const amount = (item.quantity * item.rate).toFixed(2).split('.');
+        return [
+          index + 1,
+          item.description,
+          item.hsnCode,
+          item.quantity,
+          item.rate,
+          amount[0], // Rupees
+          amount[1] // Paise
+        ];
+      });
 
       // Ensure table has 15 rows
       while (tableRows.length < 15) {
-        tableRows.push(['', '', '', '', '', '']);
+        tableRows.push(['', '', '', '', '', '', '']);
       }
 
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
-        startY: 87, // Adjusted startY to push the table down
+        startY: 89, // Adjusted startY to push the table down
         theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 1, halign: 'center' }, // Center-align content
+        styles: { fontSize: 10, cellPadding: 1, halign: 'center' }, // Center-align content and decrease cell padding
         headStyles: { fillColor: [200, 200, 200], textColor: 20 },
         columnStyles: {
           0: { cellWidth: 10 },
-          1: { cellWidth: 80 },
+          1: { cellWidth: 70 },
           2: { cellWidth: 30 },
           3: { cellWidth: 20 },
           4: { cellWidth: 20 },
-          5: { cellWidth: 30 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 20 },
         },
         tableWidth: 'auto', // Adjusted to fit the table within the page width
         margin: { left: margin, right: margin }, // Added margin to fit the table within the page width
@@ -119,27 +124,41 @@ const Invoice = ({ data }) => {
       // Calculate totals
       const totalAmountBeforeTax = data.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toFixed(2);
       const cgst = (totalAmountBeforeTax * 0.09).toFixed(2);
-      const igst = (totalAmountBeforeTax * 0.09).toFixed(2);
-      const totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(igst)).toFixed(2);
+      const sgst = (totalAmountBeforeTax * 0.09).toFixed(2);
+      const igst = (totalAmountBeforeTax * 0.18).toFixed(2);
+      const otherCharges = parseFloat(data.otherCharges) || 0;
+      const roundedOff = parseFloat(data.roundedOff) || 0;
+      const totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges + roundedOff).toFixed(2);
       const totalAmountInWords = numberToWords(parseFloat(totalAmountAfterTax).toFixed(0));
 
       // Add totals and bank details
       const finalY = doc.lastAutoTable.finalY;
-      doc.setFontSize(8);
-      doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin, finalY + 5);
-      doc.text(`TOTAL AMOUNT BEFORE TAX: ${totalAmountBeforeTax}`, pageWidth - margin, finalY + 10, { align: 'right' });
-      doc.text(`ADD – CGST @ 9%: ${cgst}`, pageWidth - margin, finalY + 14, { align: 'right' });
-      doc.text(`ADD – IGST @ 9%: ${igst}`, pageWidth - margin, finalY + 18, { align: 'right' });
-      doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterTax}`, pageWidth - margin, finalY + 22, { align: 'right' });
+      doc.setFontSize(10);
 
-      doc.text('BANK DETAILS', margin, finalY + 10);
-      doc.text(`BANK – ${data.bankDetails.bankName}`, margin, finalY + 14);
-      doc.text(`BRANCH – ${data.bankDetails.branch}`, margin, finalY + 18);
-      doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin, finalY + 22);
-      doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin, finalY + 26);
+      // Box for total amount before and after tax
+      doc.rect(margin, finalY + 7, pageWidth - 2 * margin, 30);
+      doc.text(`TOTAL AMOUNT BEFORE TAX: ${totalAmountBeforeTax}`, pageWidth - margin - 10, finalY + 11, { align: 'right' });
+      doc.text(`ADD – CGST @ 9%: ${cgst}`, pageWidth - margin - 10, finalY + 15, { align: 'right' });
+      doc.text(`ADD – SGST @ 9%: ${sgst}`, pageWidth - margin - 10, finalY + 19, { align: 'right' });
+      doc.text(`ADD – IGST @ 18%: ${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
+      doc.text(`ADD – Other Charges: ${otherCharges.toFixed(2)}`, pageWidth - margin - 10, finalY + 27, { align: 'right' });
+      doc.text(`Rounded Off: ${roundedOff.toFixed(2)}`, pageWidth - margin - 10, finalY + 31, { align: 'right' });
+      doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterTax}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });
 
-      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 32);
-      doc.text('E. & O.E', pageWidth - margin, finalY + 32, { align: 'right' });
+      // Box for total amount in words
+      doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
+      doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin + 2, finalY + 47);
+
+      // Box for bank details
+      doc.rect(margin, finalY + 52, pageWidth - 2 * margin, 30);
+      doc.text('BANK DETAILS', margin + 2, finalY + 58);
+      doc.text(`BANK – ${data.bankDetails.bankName}`, margin + 2, finalY + 62);
+      doc.text(`BRANCH – ${data.bankDetails.branch}`, margin + 2, finalY + 66);
+      doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, finalY + 70);
+      doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 74);
+
+      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 86);
+      doc.text('E. & O.E', pageWidth - margin, finalY + 86, { align: 'right' });
 
       doc.text('AUTHORISED SIGNATORY', pageWidth - margin, pageHeight - margin, { align: 'right' });
     });
