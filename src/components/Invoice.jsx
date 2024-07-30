@@ -3,30 +3,49 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 // Function to convert number to words
-const numberToWords = (num) => {
-  const a = [
-    '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
-  ];
-  const b = [
-    '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
-  ];
+function numberToWords(num) {
+  const lessThanTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
+                          "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", 
+                          "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const thousands = ["", "Thousand", "Lakh", "Crore"];
 
-  const inWords = (num) => {
-    if ((num = num.toString()).length > 9) return 'overflow';
-    const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{1})$/);
-    if (!n) return '';
-    let str = '';
-    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + ' crore ' : '';
-    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + ' lakh ' : '';
-    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + ' thousand ' : '';
-    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + ' hundred ' : '';
-    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + ' only' : '';
-    return str.trim();
-  };
+  if (num === 0) return "Zero";
 
-  return inWords(num);
-};
+  let i = 0;
+  let words = "";
 
+  while (num > 0) {
+    if (num % 1000 !== 0) {
+      words = convertHundred(num % 1000) + thousands[i] + " " + words;
+    }
+    num = Math.floor(num / 1000);
+    i++;
+  }
+
+  return words.trim() + " Only";
+}
+
+function convertHundred(num) {
+  const lessThanTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
+                          "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", 
+                          "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  let str = "";
+
+  if (num >= 100) {
+    str += lessThanTwenty[Math.floor(num / 100)] + " Hundred ";
+    num %= 100;
+  }
+  if (num >= 20) {
+    str += tens[Math.floor(num / 10)] + " ";
+    num %= 10;
+  }
+  if (num > 0) {
+    str += lessThanTwenty[num] + " ";
+  }
+  return str;
+}
 // Function to handle rounding logic
 const roundOffValue = (value) => {
   const paise = value * 100;
