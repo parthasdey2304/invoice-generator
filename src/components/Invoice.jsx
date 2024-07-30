@@ -24,7 +24,7 @@ const numberToWords = (num) => {
     return str.trim();
   };
 
-  return inWords(num) + " ONLY";
+  return inWords(num);
 };
 
 // Function to handle rounding logic
@@ -55,6 +55,9 @@ const Invoice = ({ data }) => {
 
     copyLabels.forEach((label, index) => {
       if (index > 0) doc.addPage();
+
+      // Set stroke color to light blue
+      doc.setDrawColor(2, 176, 252);
 
       // Add copy label
       doc.setFontSize(11);
@@ -90,8 +93,7 @@ const Invoice = ({ data }) => {
       doc.text(`GST IN: ${data.receiverGST}`, margin, 80);
       doc.text(`STATE: ${data.receiverState}`, margin, 85);
       doc.text(`CODE: ${data.receiverCode}`, margin + 65, 85);
-      doc.text(`BAGS: ${data.numberOfBags}`, margin + 110, 85);
-
+      
       // Add table
       const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT (Rs)', 'AMOUNT (Paise)'];
       let tableRows = data.items.map((item, index) => {
@@ -106,22 +108,22 @@ const Invoice = ({ data }) => {
           amount[1] // Paise
         ];
       });
-
+      
       // Ensure table has 15 rows
       while (tableRows.length < 15) {
         tableRows.push(['', '', '', '', '', '', '']);
       }
-
+      
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
         startY: 89, // Adjusted startY to push the table down
         theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 1, halign: 'center' }, // Center-align content and decrease cell padding
-        headStyles: { fillColor: [200, 200, 200], textColor: 20 },
+        styles: { fontSize: 10, cellPadding: 1, halign: 'center', lineColor: [2, 176, 252] }, // Center-align content and decrease cell padding
+        headStyles: { fillColor: [173, 216, 230], textColor: 20, halign: "center" },
         columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 70 },
+          0: { cellWidth: 15 },
+          1: { cellWidth: 65 },
           2: { cellWidth: 30 },
           3: { cellWidth: 20 },
           4: { cellWidth: 20 },
@@ -131,7 +133,7 @@ const Invoice = ({ data }) => {
         tableWidth: 'auto', // Adjusted to fit the table within the page width
         margin: { left: margin, right: margin }, // Added margin to fit the table within the page width
       });
-
+      
       // Calculate totals
       if(data.cgst == null) {
         data.cgst = 0;
@@ -150,25 +152,40 @@ const Invoice = ({ data }) => {
       let totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges).toFixed(2);
       let totalAmountAfterRoundingOff = (parseFloat(roundOffValue(parseFloat(totalAmountAfterTax) || 0))).toFixed(2);
       const roundedOff = totalAmountAfterRoundingOff - totalAmountAfterTax;
-      const totalAmountInWords = numberToWords(parseFloat(totalAmountAfterTax).toFixed(0));
-
+      const totalAmountInWords = numberToWords(parseFloat(totalAmountAfterRoundingOff).toFixed(0));
+      
       // Add totals and bank details
       const finalY = doc.lastAutoTable.finalY;
       doc.setFontSize(10);
-
+      
       // Box for total amount before and after tax
       doc.rect(margin, finalY + 7, pageWidth - 2 * margin, 30);
-      doc.text(`TOTAL AMOUNT BEFORE TAX: ${totalAmountBeforeTax}`, pageWidth - margin - 10, finalY + 11, { align: 'right' });
-      doc.text(`ADD – CGST @ ${data.cgst}: ${cgst}`, pageWidth - margin - 10, finalY + 15, { align: 'right' });
-      doc.text(`ADD – SGST @ ${data.sgst}: ${sgst}`, pageWidth - margin - 10, finalY + 19, { align: 'right' });
-      doc.text(`ADD – IGST @ ${data.igst}: ${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
-      doc.text(`ADD – Other Charges: ${otherCharges.toFixed(2)}`, pageWidth - margin - 10, finalY + 27, { align: 'right' });
-      doc.text(`Rounded Off: ${roundedOff.toFixed(2)}`, pageWidth - margin - 10, finalY + 31, { align: 'right' });
-      doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterRoundingOff}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });
+      doc.text(`TOTAL AMOUNT BEFORE TAX: `, pageWidth / 2 , finalY + 11, { align: 'left' });
+      doc.text(`${totalAmountBeforeTax}`, pageWidth - margin - 10, finalY + 11, { align: 'right' });
+
+      doc.text(`ADD – CGST @ ${data.cgst}% : `, pageWidth / 2 , finalY + 15, { align: 'left' });
+      doc.text(`${cgst}`, pageWidth - margin - 10, finalY + 15, { align: 'right' });
+
+      doc.text(`ADD – SGST @ ${data.sgst}% : `, pageWidth / 2, finalY + 19, { align: 'left' });
+      doc.text(`${sgst}`, pageWidth - margin - 10, finalY + 19, { align: 'right' });
+
+      doc.text(`ADD – IGST @ ${data.igst}% :`, pageWidth / 2, finalY + 23, { align: 'left' });
+      doc.text(`${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
+
+      doc.text(`BAGS: ${data.numberOfBags}`, margin + 5, finalY + 23, { align: 'left'});
+      
+      doc.text(`ADD – Other Charges: `, pageWidth / 2, finalY + 27, { align: 'left' });
+      doc.text(`${otherCharges.toFixed(2)}`, pageWidth - margin - 10, finalY + 27, { align: 'right' });
+
+      doc.text(`Rounded Off: `, pageWidth / 2, finalY + 31, { align: 'left' });
+      doc.text(`${roundedOff.toFixed(2)}`, pageWidth - margin - 10, finalY + 31, { align: 'right' });
+
+      doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2, finalY + 35, { align: 'left' });
+      doc.text(`${totalAmountAfterRoundingOff}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });
 
       // Box for total amount in words
       doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
-      doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin + 2, finalY + 47);
+      doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin + 2, finalY + 46);
 
       // Box for bank details
       doc.rect(margin, finalY + 52, pageWidth - 2 * margin, 30);
@@ -179,9 +196,9 @@ const Invoice = ({ data }) => {
       doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 74);
 
       doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 86);
-      doc.text('E. & O.E', pageWidth - margin, finalY + 86, { align: 'right' });
+      doc.text('E. & O.E', pageWidth - margin - 26, finalY + 86, { align: 'left' });
 
-      doc.text('AUTHORISED SIGNATORY', pageWidth - margin, pageHeight - margin, { align: 'right' });
+      doc.text('AUTHORISED SIGNATORY', pageWidth - margin, pageHeight - margin + 5, { align: 'right' });
     });
 
     // Save the PDF
