@@ -24,7 +24,7 @@ const numberToWords = (num) => {
     return str.trim();
   };
 
-  return inWords(num);
+  return inWords(num) + " ONLY";
 };
 
 const Invoice = ({ data }) => {
@@ -122,10 +122,19 @@ const Invoice = ({ data }) => {
       });
 
       // Calculate totals
+      if(data.cgst == null) {
+        data.cgst = 0;
+      }
+      if(data.sgst == null) {
+        data.sgst = 0;
+      }
+      if(data.igst == null) {
+        data.igst = 0;
+      }
       const totalAmountBeforeTax = data.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toFixed(2);
-      const cgst = (totalAmountBeforeTax * 0.09).toFixed(2);
-      const sgst = (totalAmountBeforeTax * 0.09).toFixed(2);
-      const igst = (totalAmountBeforeTax * 0.18).toFixed(2);
+      const cgst = (totalAmountBeforeTax * parseInt(data.cgst) * 0.01).toFixed(2);
+      const sgst = (totalAmountBeforeTax * parseInt(data.sgst) * 0.01).toFixed(2);
+      const igst = (totalAmountBeforeTax * parseInt(data.igst) * 0.01).toFixed(2);
       const otherCharges = parseFloat(data.otherCharges) || 0;
       const roundedOff = parseFloat(data.roundedOff) || 0;
       const totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges + roundedOff).toFixed(2);
@@ -138,9 +147,9 @@ const Invoice = ({ data }) => {
       // Box for total amount before and after tax
       doc.rect(margin, finalY + 7, pageWidth - 2 * margin, 30);
       doc.text(`TOTAL AMOUNT BEFORE TAX: ${totalAmountBeforeTax}`, pageWidth - margin - 10, finalY + 11, { align: 'right' });
-      doc.text(`ADD – CGST @ 9%: ${cgst}`, pageWidth - margin - 10, finalY + 15, { align: 'right' });
-      doc.text(`ADD – SGST @ 9%: ${sgst}`, pageWidth - margin - 10, finalY + 19, { align: 'right' });
-      doc.text(`ADD – IGST @ 18%: ${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
+      doc.text(`ADD – CGST @ ${data.cgst}: ${cgst}`, pageWidth - margin - 10, finalY + 15, { align: 'right' });
+      doc.text(`ADD – SGST @ ${data.sgst}: ${sgst}`, pageWidth - margin - 10, finalY + 19, { align: 'right' });
+      doc.text(`ADD – IGST @ ${data.igst}: ${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
       doc.text(`ADD – Other Charges: ${otherCharges.toFixed(2)}`, pageWidth - margin - 10, finalY + 27, { align: 'right' });
       doc.text(`Rounded Off: ${roundedOff.toFixed(2)}`, pageWidth - margin - 10, finalY + 31, { align: 'right' });
       doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterTax}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });

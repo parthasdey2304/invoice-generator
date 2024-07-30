@@ -20,11 +20,11 @@ const InvoiceForm = ({ onSubmit }) => {
       ifscCode: 'CNRB0019592',
     },
     taxDetails: {
-      cgst: '9',
-      sgst: '9',
-      igst: '',
-      otherCharges: '',
-      roundedOff: '',
+      cgst: '0',
+      sgst: '0',
+      igst: '0',
+      otherCharges: '0',
+      roundedOff: '0',
     },
     numberOfBags: '', // New state for number of bags
   });
@@ -226,7 +226,7 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="cgst"
-              value={formData.taxDetails.cgst}
+              // value={formData.taxDetails.cgst}
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -236,7 +236,7 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="sgst"
-              value={formData.taxDetails.sgst}
+              // value={formData.taxDetails.sgst}
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -246,7 +246,7 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="igst"
-              value={formData.taxDetails.igst}
+              // value={formData.taxDetails.igst}
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -256,7 +256,7 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="otherCharges"
-              value={formData.taxDetails.otherCharges}
+              // value={formData.taxDetails.otherCharges}
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
@@ -266,7 +266,7 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="roundedOff"
-              value={formData.taxDetails.roundedOff}
+              // value={formData.taxDetails.roundedOff}
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
