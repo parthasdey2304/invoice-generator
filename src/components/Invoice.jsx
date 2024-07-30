@@ -27,6 +27,17 @@ const numberToWords = (num) => {
   return inWords(num) + " ONLY";
 };
 
+// Function to handle rounding logic
+const roundOffValue = (value) => {
+  const paise = value * 100;
+  const fractionalPart = paise % 100;
+  if (fractionalPart >= 50) {
+    return Math.ceil(value);
+  } else {
+    return Math.floor(value);
+  }
+};
+
 const Invoice = ({ data }) => {
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -136,8 +147,9 @@ const Invoice = ({ data }) => {
       const sgst = (totalAmountBeforeTax * parseInt(data.sgst) * 0.01).toFixed(2);
       const igst = (totalAmountBeforeTax * parseInt(data.igst) * 0.01).toFixed(2);
       const otherCharges = parseFloat(data.otherCharges) || 0;
-      const roundedOff = parseFloat(data.roundedOff) || 0;
-      const totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges + roundedOff).toFixed(2);
+      let totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges).toFixed(2);
+      let totalAmountAfterRoundingOff = (parseFloat(roundOffValue(parseFloat(totalAmountAfterTax) || 0))).toFixed(2);
+      const roundedOff = totalAmountAfterRoundingOff - totalAmountAfterTax;
       const totalAmountInWords = numberToWords(parseFloat(totalAmountAfterTax).toFixed(0));
 
       // Add totals and bank details
@@ -152,7 +164,7 @@ const Invoice = ({ data }) => {
       doc.text(`ADD – IGST @ ${data.igst}: ${igst}`, pageWidth - margin - 10, finalY + 23, { align: 'right' });
       doc.text(`ADD – Other Charges: ${otherCharges.toFixed(2)}`, pageWidth - margin - 10, finalY + 27, { align: 'right' });
       doc.text(`Rounded Off: ${roundedOff.toFixed(2)}`, pageWidth - margin - 10, finalY + 31, { align: 'right' });
-      doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterTax}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });
+      doc.text(`TOTAL AMOUNT AFTER TAX: ${totalAmountAfterRoundingOff}`, pageWidth - margin - 10, finalY + 35, { align: 'right' });
 
       // Box for total amount in words
       doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
