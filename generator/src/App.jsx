@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import InvoiceForm from './components/InvoiceForm';
-import Invoice from './components/Invoice';
+import Invoice from './components/InvoiceGenerator';
 
 const App = () => {
   const [invoiceData, setInvoiceData] = useState(null);
