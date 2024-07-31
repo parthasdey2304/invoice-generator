@@ -175,7 +175,7 @@ const Invoice = ({ data }) => {
       // Add totals and bank details
       const finalY = doc.lastAutoTable.finalY;
       doc.setFontSize(10);
-      
+
       // Box for total amount before and after tax
       doc.rect(margin, finalY + 7, pageWidth - 2 * margin, 30);
       doc.text(`TOTAL AMOUNT BEFORE TAX: `, pageWidth / 2 + 15 , finalY + 11, { align: 'left' });
@@ -189,11 +189,14 @@ const Invoice = ({ data }) => {
 
       doc.text(`ADD – IGST @ ${data.igst}% :`, pageWidth / 2 + 15, finalY + 23, { align: 'left' });
       doc.text(`${igst}`, pageWidth - margin - 5, finalY + 23, { align: 'right' });
-      
+
       doc.text(`BAGS: ${data.numberOfBags}`, margin + 5, finalY + 15, { align: 'left'});
       doc.text(`TOTAL INVOICE AMOUNT IN WORDS : `, margin + 5, finalY + 20);
-      doc.text(`${totalAmountInWords.toUpperCase()}`, margin + 5, finalY + 25);
-      
+
+      // Wrap the total amount in words
+      const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin);
+      doc.text(totalAmountInWordsWrapped, margin + 5, finalY + 25);
+
       doc.text(`ADD – Other Charges: `, pageWidth / 2 + 15, finalY + 27, { align: 'left' });
       doc.text(`${otherCharges.toFixed(2)}`, pageWidth - margin - 5, finalY + 27, { align: 'right' });
 
@@ -202,8 +205,6 @@ const Invoice = ({ data }) => {
 
       doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 15, finalY + 35, { align: 'left' });
       doc.text(`${totalAmountAfterRoundingOff}`, pageWidth - margin - 5, finalY + 35, { align: 'right' });
-
-      doc.line(pageWidth / 2 + 10, finalY + 7, pageWidth / 2 + 10, finalY + 37)
 
       // Box for total amount in words
       // doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
