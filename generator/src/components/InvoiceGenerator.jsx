@@ -1,6 +1,11 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+function formatDateToDDMMYYYY(date) {
+  const [year, month, day] = date.split('-');
+  return `${day}/${month}/${year}`;
+}
+
 // Function to convert number to words
 function numberToWords(num) {
   const lessThanTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
@@ -91,12 +96,13 @@ const Invoice = ({ data }) => {
       doc.text('PROPRIETOR: ASHOK KUMAR SHAW', pageWidth / 2, 27, { align: 'center' });
       doc.text('31/A PULIN KHATICK ROAD KOLKATA – 700015', pageWidth / 2, 31, { align: 'center' });
       doc.text(`GST IN 19AKWPS4940B1ZO`, margin, 37);
+      doc.text('EMAIL: ashokkumarshaw1103@gmail.com', pageWidth / 2 - 30, 37); // Added email line
       doc.text(`MOBILE- 8820416613`, pageWidth - margin, 37, { align: 'right' });
 
       // Add invoice details
       doc.line(margin, 39, pageWidth - margin, 39);
       doc.text(`Invoice No: ${data.invoiceNo}`, margin, 44);
-      doc.text(`Invoice Date: ${data.invoiceDate}`, margin, 49);
+      doc.text(`Invoice Date: ${formatDateToDDMMYYYY(data.invoiceDate)}`, margin, 49);
       doc.text('State: WEST BENGAL    Code- 19', margin, 54);
       doc.text(`Transport Name: ${data.transportName}`, pageWidth / 2, 44);
       doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 49);
@@ -113,7 +119,7 @@ const Invoice = ({ data }) => {
       doc.text(`CODE: ${data.receiverCode}`, margin + 65, 85);
       
       // Add table
-      const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT (Rs)', 'Paise'];
+      const tableColumn = ['S.NO', 'DESCRIPTION OF GOODS', 'HSN CODE', 'QNTY', 'RATE', 'AMOUNT (Rs)', 'PAISE'];
       let tableRows = data.items.map((item, index) => {
         const amount = (item.quantity * item.rate).toFixed(2).split('.');
         return [
@@ -163,63 +169,86 @@ const Invoice = ({ data }) => {
         data.igst = 0;
       }
       let totalAmountBeforeTax = data.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toFixed(2);
-      let cgst = (totalAmountBeforeTax * parseInt(data.cgst) * 0.01).toFixed(2);
-      let sgst = (totalAmountBeforeTax * parseInt(data.sgst) * 0.01).toFixed(2);
-      let igst = (totalAmountBeforeTax * parseInt(data.igst) * 0.01).toFixed(2);
+      let cgst = (totalAmountBeforeTax * (parseFloat(data.cgst) || 0) * 0.01).toFixed(2);
+      let sgst = (totalAmountBeforeTax * (parseFloat(data.sgst) || 0) * 0.01).toFixed(2);
+      let igst = (totalAmountBeforeTax * (parseFloat(data.igst) || 0) * 0.01).toFixed(2);
       let otherCharges = parseFloat(data.otherCharges) || 0;
       let totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges).toFixed(2);
       let totalAmountAfterRoundingOff = (parseFloat(roundOffValue(parseFloat(totalAmountAfterTax) || 0))).toFixed(2);
-      let roundedOff = totalAmountAfterRoundingOff - totalAmountAfterTax;
+      let roundedOff =(totalAmountAfterRoundingOff - totalAmountAfterTax);
+
       let totalAmountInWords = numberToWords(parseFloat(totalAmountAfterRoundingOff).toFixed(0));
       
       // Add totals and bank details
       const finalY = doc.lastAutoTable.finalY;
-      doc.setFontSize(10);
-
+      doc.setFontSize(13);
+      
       // Box for total amount before and after tax
-      doc.rect(margin, finalY + 7, pageWidth - 2 * margin, 30);
-      doc.text(`TOTAL AMOUNT BEFORE TAX: `, pageWidth / 2 + 15 , finalY + 11, { align: 'left' });
-      doc.text(`${totalAmountBeforeTax}`, pageWidth - margin - 5, finalY + 11, { align: 'right' });
-
-      doc.text(`ADD – CGST @ ${data.cgst}% : `, pageWidth / 2 + 15 , finalY + 15, { align: 'left' });
-      doc.text(`${cgst}`, pageWidth - margin - 5, finalY + 15, { align: 'right' });
-
-      doc.text(`ADD – SGST @ ${data.sgst}% : `, pageWidth / 2 + 15, finalY + 19, { align: 'left' });
-      doc.text(`${sgst}`, pageWidth - margin - 5, finalY + 19, { align: 'right' });
-
-      doc.text(`ADD – IGST @ ${data.igst}% :`, pageWidth / 2 + 15, finalY + 23, { align: 'left' });
-      doc.text(`${igst}`, pageWidth - margin - 5, finalY + 23, { align: 'right' });
-
-      doc.text(`BAGS: ${data.numberOfBags}`, margin + 5, finalY + 15, { align: 'left'});
-      doc.text(`TOTAL INVOICE AMOUNT IN WORDS : `, margin + 5, finalY + 20);
-
-      // Wrap the total amount in words
+      doc.rect(margin, finalY, pageWidth - 2 * margin, 37);
+      
+      doc.text(`BAGS: ${data.numberOfBags}`, margin + 80, finalY + 7, { align: 'left'});
+      doc.setFontSize(10);
+      doc.text("TOTAL INVOICE AMOUNT IN WORDS : ", margin + 3, finalY + 18);
       const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin);
-      doc.text(totalAmountInWordsWrapped, margin + 5, finalY + 25);
+      doc.text(totalAmountInWordsWrapped, margin + 3, finalY + 23);
+      
+      doc.setFontSize(8);
+      doc.line(pageWidth / 2 + 8, finalY, pageWidth / 2 + 8, finalY + 37); // middle line between the bags box and the tax box
+      doc.line(pageWidth / 2 + 60, finalY, pageWidth / 2 + 60, finalY + 37); // this seperates the labels and the rupees
+      doc.line(pageWidth / 2 + 80, finalY, pageWidth / 2 + 80, finalY + 37); // this seperates the rupees and paise
 
-      doc.text(`ADD – Other Charges: `, pageWidth / 2 + 15, finalY + 27, { align: 'left' });
-      doc.text(`${otherCharges.toFixed(2)}`, pageWidth - margin - 5, finalY + 27, { align: 'right' });
+      // Add these lines after the existing code for adding totals
+      doc.setLineWidth(0.1);
+      doc.line(pageWidth / 2 + 8, finalY + 6.5, pageWidth - margin, finalY + 6.5);
+      doc.line(pageWidth / 2 + 8, finalY + 11.5, pageWidth - margin, finalY + 11.5);
+      doc.line(pageWidth / 2 + 8, finalY + 16.5, pageWidth - margin, finalY + 16.5);
+      doc.line(pageWidth / 2 + 8, finalY + 21.5, pageWidth - margin, finalY + 21.5);
+      doc.line(pageWidth / 2 + 8, finalY + 26.5, pageWidth - margin, finalY + 26.5);
+      doc.line(pageWidth / 2 + 8, finalY + 31.5, pageWidth - margin, finalY + 31.5);
 
-      doc.text(`Rounded Off: `, pageWidth / 2 + 15, finalY + 31, { align: 'left' });
-      doc.text(`${roundedOff.toFixed(2)}`, pageWidth - margin - 5, finalY + 31, { align: 'right' });
+      doc.setFontSize(9);
+      doc.text("TOTAL AMOUNT BEFORE TAX: ", pageWidth / 2 + 10 , finalY + 5, { align: 'left' });
+      doc.text(`${totalAmountBeforeTax.split('.')[0]}`, pageWidth - margin - 20, finalY + 5, { align: 'right' });
+      doc.text(`${totalAmountBeforeTax.split('.')[1]}`, pageWidth - margin - 5, finalY + 5, { align: 'right' });
 
-      doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 15, finalY + 35, { align: 'left' });
-      doc.text(`${totalAmountAfterRoundingOff}`, pageWidth - margin - 5, finalY + 35, { align: 'right' });
+      doc.text(`ADD – CGST @ ${data.cgst}% : `, pageWidth / 2 + 10 , finalY + 10, { align: 'left' });
+      doc.text(`${cgst.split('.')[0]}`, pageWidth - margin - 20, finalY + 10, { align: 'right' });
+      doc.text(`${cgst.split('.')[1]}`, pageWidth - margin - 5, finalY + 10, { align: 'right' });
 
+      doc.text(`ADD – SGST @ ${data.sgst}% : `, pageWidth / 2 + 10, finalY + 15, { align: 'left' });
+      doc.text(`${sgst.split('.')[0]}`, pageWidth - margin - 20, finalY + 15, { align: 'right' });
+      doc.text(`${sgst.split('.')[1]}`, pageWidth - margin - 5, finalY + 15, { align: 'right' });
+
+      doc.text(`ADD – IGST @ ${data.igst}% :`, pageWidth / 2 + 10, finalY + 20, { align: 'left' });
+      doc.text(`${igst.split('.')[0]}`, pageWidth - margin - 20, finalY + 20, { align: 'right' });
+      doc.text(`${igst.split('.')[1]}`, pageWidth - margin - 5, finalY + 20, { align: 'right' });
+
+      doc.text(`ADD – Other Charges: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
+      doc.text(`${otherCharges.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
+      doc.text(`${otherCharges.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
+
+      doc.text(`ROUNDED OFF: `, pageWidth / 2 + 10, finalY + 30, { align: 'left' });
+      doc.text(`${roundedOff.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 30, { align: 'right' });
+      doc.text(`${roundedOff.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 30, { align: 'right' });
+
+      doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 10, finalY + 35, { align: 'left' });
+      doc.text(`${totalAmountAfterRoundingOff.split('.')[0]}`, pageWidth - margin - 20, finalY + 35, { align: 'right' });
+      doc.text(`${totalAmountAfterRoundingOff.split('.')[1]}`, pageWidth - margin - 5, finalY + 35, { align: 'right' });
       // Box for total amount in words
       // doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
       // doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin + 2, finalY + 46);
 
       // Box for bank details
-      doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 40);
+      doc.setFontSize(11);
+      doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 30);
       doc.text('BANK DETAILS', margin + 2, finalY + 46);
       doc.text(`BANK – ${data.bankDetails.bankName}`, margin + 2, finalY + 51);
       doc.text(`BRANCH – ${data.bankDetails.branch}`, margin + 2, finalY + 56);
       doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, finalY + 61);
       doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 66);
 
-      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 84);
-      doc.text('E. & O.E', pageWidth - margin - 26, finalY + 84, { align: 'left' });
+      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 77);
+      doc.text('E. & O.E', pageWidth - margin - 30, finalY + 77, { align: 'left' });
 
       doc.text('AUTHORISED SIGNATORY', pageWidth - margin, pageHeight - margin + 2, { align: 'right' });
     });
