@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import QRCode from 'qrcode';
 
 function formatDateToDDMMYYYY(date) {
   const [year, month, day] = date.split('-');
@@ -246,6 +247,18 @@ const Invoice = ({ data }) => {
       doc.text(`BRANCH – ${data.bankDetails.branch}`, margin + 2, finalY + 56);
       doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, finalY + 61);
       doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 66);
+
+      
+      QRCode.toDataURL(data.pdfLink, { width: 100, margin: 1 }, (err, url) => {
+        if (err) {
+          console.error('Error generating QR code:', err);
+          return;
+        }
+        
+        doc.text("SCAN HERE", pageWidth - margin - 40, finalY + 50, { align: 'right' });
+        doc.text("FOR PRODUCT DETAILS", pageWidth - margin - 30, finalY + 60, { align: 'right' });
+        doc.addImage(url, 'PNG', pageWidth - margin - 28, finalY + 42, 26, 26);
+      });
 
       doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 77);
       doc.text('E. & O.E', pageWidth - margin - 30, finalY + 77, { align: 'left' });

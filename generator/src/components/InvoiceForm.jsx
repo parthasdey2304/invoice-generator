@@ -26,7 +26,8 @@ const InvoiceForm = ({ onSubmit }) => {
       otherCharges: '0',
       roundedOff: '0',
     },
-    numberOfBags: '', // New state for number of bags
+    numberOfBags: '',
+    pdfLink: ''
   });
 
   const handleInputChange = (e, index, key) => {
@@ -268,6 +269,19 @@ const InvoiceForm = ({ onSubmit }) => {
               type="number"
               name="roundedOff"
               // value={formData.taxDetails.roundedOff}
+              onChange={(e) => handleInputChange(e)}
+              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+        </div>
+
+        <h3 className="text-2xl font-bold mt-8 mb-4 text-gray-800">PDF QR Link</h3>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div>
+            <label className="block text-gray-700">Link</label>
+            <input
+              type="text"
+              name="pdfLink"
               onChange={(e) => handleInputChange(e)}
               className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
