@@ -28,7 +28,7 @@ function numberToWords(num) {
     i++;
   }
 
-  return words.trim() + " Only";
+  return words.trim() + " \nOnly";
 }
 
 function convertHundred(num) {
@@ -105,18 +105,18 @@ const Invoice = ({ data }) => {
       doc.text(`Invoice No: ${data.invoiceNo}`, margin, 44);
       doc.text(`Invoice Date: ${formatDateToDDMMYYYY(data.invoiceDate)}`, margin, 49);
       doc.text('State: WEST BENGAL    Code- 19', margin, 54);
-      doc.text(`Transport Name: ${data.transportName}`, pageWidth / 2, 44);
+      doc.text(`Transport Name: ${data.transportName.toUpperCase()}`, pageWidth / 2, 44);
       doc.text(`G.C.N./R.R.NO: ${data.gcn}`, pageWidth / 2, 49);
-      doc.text(`Place of Supply: ${data.placeOfSupply}`, pageWidth / 2, 54);
+      doc.text(`Place of Supply: ${data.placeOfSupply.toUpperCase()}`, pageWidth / 2, 54);
 
       // Add receiver details
       doc.line(margin, 57, pageWidth - margin, 57);
       doc.text('DETAILS OF RECEIVER [BILLED TO PARTY]', pageWidth / 2, 62, { align: 'center' });
       doc.line(margin, 65, pageWidth - margin, 65);
-      doc.text(`NAME: ${data.receiverName}`, margin, 70);
-      doc.text(`ADDRESS: ${data.receiverAddress}`, margin, 75);
+      doc.text(`NAME: ${data.receiverName.toUpperCase()}`, margin, 70);
+      doc.text(`ADDRESS: ${data.receiverAddress.toUpperCase()}`, margin, 75);
       doc.text(`GST IN: ${data.receiverGST}`, margin, 80);
-      doc.text(`STATE: ${data.receiverState}`, margin, 85);
+      doc.text(`STATE: ${data.receiverState.toUpperCase()}`, margin, 85);
       doc.text(`CODE: ${data.receiverCode}`, margin + 65, 85);
       
       // Add table
@@ -188,10 +188,12 @@ const Invoice = ({ data }) => {
       doc.rect(margin, finalY, pageWidth - 2 * margin, 37);
       
       doc.text(`BAGS: ${data.numberOfBags}`, margin + 80, finalY + 7, { align: 'left'});
+      // Replace the existing code for total amount in words with this:
       doc.setFontSize(10);
       doc.text("TOTAL INVOICE AMOUNT IN WORDS : ", margin + 3, finalY + 18);
-      const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin);
+      const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin - 6);
       doc.text(totalAmountInWordsWrapped, margin + 3, finalY + 23);
+
       
       doc.setFontSize(8);
       doc.line(pageWidth / 2 + 8, finalY, pageWidth / 2 + 8, finalY + 37); // middle line between the bags box and the tax box
