@@ -51,6 +51,7 @@ function convertHundred(num) {
   }
   return str;
 }
+
 // Function to handle rounding logic
 const roundOffValue = (value) => {
   const paise = value * 100;
@@ -79,6 +80,21 @@ const Invoice = ({ data }) => {
 
     copyLabels.forEach((label, index) => {
       if (index > 0) doc.addPage();
+    
+      // Set background color based on the copy type
+      if (index < 3) {
+        // White color for the Buyer's copy
+        doc.setFillColor(255, 255, 255);
+      } else if (index === 3) {
+        // Lighter yellow for Seller's copy
+        doc.setFillColor(255, 253, 230);
+      } else {
+        // Lighter pink for Transport's copy
+        doc.setFillColor(255, 230, 240);
+      }
+
+      // Add background rectangle
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
       // Set stroke color to light blue
       doc.setDrawColor(2, 176, 252);
@@ -97,7 +113,7 @@ const Invoice = ({ data }) => {
       doc.text('PROPRIETOR: ASHOK KUMAR SHAW', pageWidth / 2, 27, { align: 'center' });
       doc.text('31/A PULIN KHATICK ROAD KOLKATA – 700015', pageWidth / 2, 31, { align: 'center' });
       doc.text(`GST IN 19AKWPS4940B1ZO`, margin, 37);
-      doc.text('EMAIL: ashokkumarshaw1103@gmail.com', pageWidth / 2 - 30, 37); // Added email line
+      doc.text('EMAIL: ashokkumarshaw1103@gmail.com', pageWidth / 2 - 30, 37);
       doc.text(`MOBILE- 8820416613`, pageWidth - margin, 37, { align: 'right' });
 
       // Add invoice details
@@ -142,10 +158,20 @@ const Invoice = ({ data }) => {
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
-        startY: 89, // Adjusted startY to push the table down
+        startY: 89,
         theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 1, halign: 'center', lineColor: [2, 176, 252] }, // Center-align content and decrease cell padding
-        headStyles: { fillColor: [173, 216, 230], textColor: 20, halign: "center" },
+        styles: { 
+          fontSize: 10, 
+          cellPadding: 1, 
+          halign: 'center', 
+          lineColor: [2, 176, 252],
+          fillColor: index === 3 ? [255, 253, 230] : (index === 4 ? [255, 230, 240] : null)
+        },
+        headStyles: { 
+          fillColor: [173, 216, 230], 
+          textColor: 20, 
+          halign: "center" 
+        },
         columnStyles: {
           0: { cellWidth: 15 },
           1: { cellWidth: 70 },
@@ -155,9 +181,10 @@ const Invoice = ({ data }) => {
           5: { cellWidth: 20 },
           6: { cellWidth: 15 },
         },
-        tableWidth: 'auto', // Adjusted to fit the table within the page width
-        margin: { left: margin, right: margin }, // Added margin to fit the table within the page width
+        tableWidth: 'auto',
+        margin: { left: margin, right: margin },
       });
+
       
       // Calculate totals
       if(data.cgst == null) {
@@ -188,19 +215,16 @@ const Invoice = ({ data }) => {
       doc.rect(margin, finalY, pageWidth - 2 * margin, 37);
       
       doc.text(`BAGS: ${data.numberOfBags}`, margin + 80, finalY + 7, { align: 'left'});
-      // Replace the existing code for total amount in words with this:
       doc.setFontSize(10);
       doc.text("TOTAL INVOICE AMOUNT IN WORDS : ", margin + 3, finalY + 18);
       const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin - 6);
       doc.text(totalAmountInWordsWrapped, margin + 3, finalY + 23);
 
-      
       doc.setFontSize(8);
-      doc.line(pageWidth / 2 + 8, finalY, pageWidth / 2 + 8, finalY + 37); // middle line between the bags box and the tax box
-      doc.line(pageWidth / 2 + 60, finalY, pageWidth / 2 + 60, finalY + 37); // this seperates the labels and the rupees
-      doc.line(pageWidth / 2 + 80, finalY, pageWidth / 2 + 80, finalY + 37); // this seperates the rupees and paise
+      doc.line(pageWidth / 2 + 8, finalY, pageWidth / 2 + 8, finalY + 37);
+      doc.line(pageWidth / 2 + 60, finalY, pageWidth / 2 + 60, finalY + 37);
+      doc.line(pageWidth / 2 + 80, finalY, pageWidth / 2 + 80, finalY + 37);
 
-      // Add these lines after the existing code for adding totals
       doc.setLineWidth(0.1);
       doc.line(pageWidth / 2 + 8, finalY + 6.5, pageWidth - margin, finalY + 6.5);
       doc.line(pageWidth / 2 + 8, finalY + 11.5, pageWidth - margin, finalY + 11.5);
@@ -237,9 +261,6 @@ const Invoice = ({ data }) => {
       doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 10, finalY + 35, { align: 'left' });
       doc.text(`${totalAmountAfterRoundingOff.split('.')[0]}`, pageWidth - margin - 20, finalY + 35, { align: 'right' });
       doc.text(`${totalAmountAfterRoundingOff.split('.')[1]}`, pageWidth - margin - 5, finalY + 35, { align: 'right' });
-      // Box for total amount in words
-      // doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 10);
-      // doc.text(`TOTAL INVOICE AMOUNT IN WORDS – ${totalAmountInWords.toUpperCase()}`, margin + 2, finalY + 46);
 
       // Box for bank details
       doc.setFontSize(11);
@@ -250,7 +271,6 @@ const Invoice = ({ data }) => {
       doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, finalY + 61);
       doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 66);
 
-      
       QRCode.toDataURL(data.pdfLink, { width: 100, margin: 1 }, (err, url) => {
         if (err) {
           console.error('Error generating QR code:', err);
