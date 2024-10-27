@@ -73,7 +73,7 @@ const InvoiceForm = ({ onSubmit }) => {
     <div className={`p-2 transition-colors duration-300 ${isDarkTheme ? 'dark:bg-gray-900' : 'bg-white'}`}>
       <div className="fixed top-4 right-4 flex items-center">
         {showMessage && (
-          <span className="mr-4 text-xl font-['Poppins'] font-semibold text-gray-700 dark:text-gray-300 animate-bounce p-1 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500">
+          <span className="mr-4 text-md font-['Poppins'] font-semibold text-gray-700 dark:text-gray-300 animate-bounce p-1 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500">
             <span className="bg-white dark:bg-gray-800 px-2 py-1 rounded">
               Try our new dark mode toggle!
             </span>
