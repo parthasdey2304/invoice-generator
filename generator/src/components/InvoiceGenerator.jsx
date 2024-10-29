@@ -65,7 +65,10 @@ const roundOffValue = (value) => {
 
 const Invoice = ({ data }) => {
   const generatePDF = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      format: 'a4',
+      unit: 'mm'
+    });
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 10;
