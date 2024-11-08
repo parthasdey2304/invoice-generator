@@ -27,7 +27,7 @@ const InvoiceForm = ({ onSubmit }) => {
       roundedOff: '0',
     },
     numberOfBags: '',
-    pdfLink: ''
+    pdfLink: 'https://drive.google.com/file/d/1eUYyZqZBuYCdWR5T1sz25yTQgkXq_Pcl/view?usp=sharing'
   });
 
   const [isDarkTheme, setIsDarkTheme] = useState(true);
