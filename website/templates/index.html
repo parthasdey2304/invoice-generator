@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">Invoice Database</h1>
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice No</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Party Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GST IN</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bags</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxable Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Payment</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.invoice_no }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.invoice_date }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.receiver_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.receiver_gst }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.number_of_bags }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% set taxable_amount = namespace(value=0) %}
+                            {% for item in invoice.items %}
+                                {% set taxable_amount.value = taxable_amount.value + (item.quantity|float * item.rate|float) %}
+                            {% endfor %}
+                            ₹{{ "%.2f"|format(taxable_amount.value) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% set total_payment = namespace(value=taxable_amount.value) %}
+                            {% set tax_details = invoice.tax_details|from_json %}
+                            {% set total_payment.value = total_payment.value + 
+                                                         (taxable_amount.value * (tax_details.cgst|float / 100)) +
+                                                         (taxable_amount.value * (tax_details.sgst|float / 100)) +
+                                                         (taxable_amount.value * (tax_details.igst|float / 100)) +
+                                                         (tax_details.otherCharges|float) %}
+                            ₹{{ "%.2f"|format(total_payment.value) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

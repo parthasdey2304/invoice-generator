@@ -7,7 +7,7 @@ function formatDateToDDMMYYYY(date) {
   return `${day}/${month}/${year}`;
 }
 
-// Function to convert number to words
+// Function to convert number to words in the Indian numbering system
 function numberToWords(num) {
   const lessThanTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
                           "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", 
@@ -21,14 +21,15 @@ function numberToWords(num) {
   let words = "";
 
   while (num > 0) {
-    if (num % 1000 !== 0) {
-      words = convertHundred(num % 1000) + thousands[i] + " " + words;
+    let divisor = i === 1 ? 100 : 1000;  // Use 100 for thousands place, 1000 for higher places
+    if (num % divisor !== 0) {
+      words = convertHundred(num % divisor) + thousands[i] + " " + words;
     }
-    num = Math.floor(num / 1000);
+    num = Math.floor(num / divisor);
     i++;
   }
 
-  return words.trim() + " \nOnly";
+  return words.trim() + " Only";
 }
 
 function convertHundred(num) {
@@ -51,6 +52,7 @@ function convertHundred(num) {
   }
   return str;
 }
+
 
 // Function to handle rounding logic
 const roundOffValue = (value) => {
@@ -220,7 +222,7 @@ const Invoice = ({ data }) => {
       doc.text(`BAGS: ${data.numberOfBags}`, margin + 80, finalY + 7, { align: 'left'});
       doc.setFontSize(10);
       doc.text("TOTAL INVOICE AMOUNT IN WORDS : ", margin + 3, finalY + 18);
-      const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth - 2 * margin - 6);
+      const totalAmountInWordsWrapped = doc.splitTextToSize(`${totalAmountInWords.toUpperCase()}`, pageWidth / 2 - margin - 6);
       doc.text(totalAmountInWordsWrapped, margin + 3, finalY + 23);
 
       doc.setFontSize(8);
