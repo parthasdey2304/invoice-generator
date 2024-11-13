@@ -33,6 +33,23 @@ const InvoiceForm = ({ onSubmit }) => {
   const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [showMessage, setShowMessage] = useState(true);
 
+  const suggestions = [
+    "2 MODULAR BOX   3X3X2",
+    "3 MODULAR BOX   4X4X2",
+    "4 MODULAR BOX   6X4X2",
+    "6 MODULAR BOX   7X4X2",
+    "8 MODULAR BOX   8X6X2",
+    "12 MODULAR BOX   8 X 10 X 2",
+    "16 MODULAR BOX   10 X 12 X 2",
+    "18 MODULAR BOX   4X8X2",
+    "3 LED   4 X 10 X 2",
+    "6 LED   8X6X3",
+    "12 LED   8 x 10 x 3",
+    "FAN BOX WITH ROD8 X 12 X 3",
+    "FAN BOX WITH ROD   8 X 12 X2",
+    "FAN BOX WITH ROD   4 X 12 X2"
+  ];
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowMessage(false);
@@ -226,18 +243,42 @@ const InvoiceForm = ({ onSubmit }) => {
         <h3 className={`text-2xl font-bold mt-8 mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Items</h3>
         {formData.items.map((item, index) => (
           <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
-            <div>
+              <div>
+                <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
+                <select
+                  name="description"
+                  value={item.description}
+                  onChange={(e) => handleInputChange(e, index, 'items')}
+                  className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
+                    isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
+                  }`}
+                >
+                  <option value="">Select an item</option>
+                  {suggestions.map((suggestion, i) => (
+                    <option key={i} value={suggestion}>
+                      {suggestion}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/* <div>
               <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
               <input
                 type="text"
                 name="description"
                 value={item.description}
                 onChange={(e) => handleInputChange(e, index, 'items')}
+                list={`suggestions-${index}`}
                 className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
                   isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
                 }`}
               />
-            </div>
+              <datalist id={`suggestions-${index}`}>
+                {suggestions.map((suggestion, i) => (
+                  <option key={i} value={suggestion} />
+                ))}
+              </datalist>
+            </div> */}
             <div>
               <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Quantity</label>
               <input
@@ -274,7 +315,7 @@ const InvoiceForm = ({ onSubmit }) => {
               >
                 Add Item
               </button>
-              </div>
+            </div>
           </div>
         ))}
 
