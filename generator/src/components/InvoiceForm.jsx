@@ -1,3 +1,11 @@
+/**
+ * React component that renders an invoice form with various input fields for invoice details, receiver details, items, tax details, and bank details.
+ * The component uses state to manage the form data and provides functionality to add new items, toggle a dark theme, and submit the form.
+ * The component also displays a message about the dark mode toggle feature for a limited time.
+ *
+ * @param {function} onSubmit - A callback function that is called when the form is submitted, passing the form data as an argument.
+ * @returns {JSX.Element} - The rendered invoice form component.
+ */
 import { useState, useEffect } from 'react';
 
 const InvoiceForm = ({ onSubmit }) => {
@@ -34,20 +42,35 @@ const InvoiceForm = ({ onSubmit }) => {
   const [showMessage, setShowMessage] = useState(true);
 
   const suggestions = [
-    "2 MODULAR BOX   3X3X2",
-    "3 MODULAR BOX   4X4X2",
-    "4 MODULAR BOX   6X4X2",
-    "6 MODULAR BOX   7X4X2",
-    "8 MODULAR BOX   8X6X2",
-    "12 MODULAR BOX   8 X 10 X 2",
-    "16 MODULAR BOX   10 X 12 X 2",
-    "18 MODULAR BOX   4X8X2",
-    "3 LED   4 X 10 X 2",
-    "6 LED   8X6X3",
-    "12 LED   8 x 10 x 3",
-    "FAN BOX WITH ROD8 X 12 X 3",
-    "FAN BOX WITH ROD   8 X 12 X2",
-    "FAN BOX WITH ROD   4 X 12 X2"
+    "2 MODULAR CONCEALED MS BOXES",
+    "3 MODULAR CONCEALED MS BOXES",
+    "4 MODULAR CONCEALED MS BOXES",
+    "6 MODULAR CONCEALED MS BOXES",
+    "8 MODULAR CONCEALED MS BOXES",
+    "12 MODULAR CONCEALED MS BOXES",
+    "16 MODULAR CONCEALED MS BOXES",
+    "18 MODULAR CONCEALED MS BOXES",
+    "3X3X2 CONCEALED MS BOXES",
+    "4X4X2 CONCEALED MS BOXES",
+    "6X4X2 CONCEALED MS BOXES",
+    "7X4X2 CONCEALED MS BOXES",
+    "8x6x2 CONCEALED MS BOXES",
+    "10x12x2 CONCEALED MS BOXES",
+    "4x8x2 CONCEALED MS BOXES",
+    "4x10x2 CONCEALED MS BOXES",
+    "8x6x3 CONCEALED MS BOXES",
+    "8x10x3 CONCEALED MS BOXES",
+    "8x12x3 CONCEALED MS BOXES",
+    "8x12x2 CONCEALED MS BOXES",
+    "4x12x2 CONCEALED MS BOXES",
+    "FAN BOX WITH ROD ",
+    "3 LED BOWL",
+    "6 LED BOWL",
+    "4.5 LED BOWL ",
+    "12 LED BOWL ",
+    "8 SQUARE CONCEALED MS BOXES ",
+    "HEXAGON FAN BOX",
+    "HEXAGON FAN BOX WITH ROD",
   ];
 
   useEffect(() => {

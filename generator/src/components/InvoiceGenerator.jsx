@@ -7,7 +7,6 @@ function formatDateToDDMMYYYY(date) {
   return `${day}/${month}/${year}`;
 }
 
-// Function to convert number to words in the Indian numbering system
 function numberToWords(num) {
   const lessThanTwenty = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
                           "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", 
