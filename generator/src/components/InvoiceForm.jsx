@@ -7,6 +7,7 @@
  * @returns {JSX.Element} - The rendered invoice form component.
  */
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const InvoiceForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -50,19 +51,21 @@ const InvoiceForm = ({ onSubmit }) => {
     "12 MODULAR CONCEALED MS BOXES",
     "16 MODULAR CONCEALED MS BOXES",
     "18 MODULAR CONCEALED MS BOXES",
-    "3X3X2 CONCEALED MS BOXES",
-    "4X4X2 CONCEALED MS BOXES",
-    "6X4X2 CONCEALED MS BOXES",
-    "7X4X2 CONCEALED MS BOXES",
-    "8x6x2 CONCEALED MS BOXES",
-    "10x12x2 CONCEALED MS BOXES",
-    "4x8x2 CONCEALED MS BOXES",
-    "4x10x2 CONCEALED MS BOXES",
-    "8x6x3 CONCEALED MS BOXES",
-    "8x10x3 CONCEALED MS BOXES",
-    "8x12x3 CONCEALED MS BOXES",
-    "8x12x2 CONCEALED MS BOXES",
-    "4x12x2 CONCEALED MS BOXES",
+    "3 X 3 X 2 CONCEALED MS BOXES",
+    "4 X 4 X 2 CONCEALED MS BOXES",
+    "6 X 4 X 2 CONCEALED MS BOXES",
+    "7 X 4 X 2 CONCEALED MS BOXES",
+    "8 X 6 X 2 CONCEALED MS BOXES",
+    "10 X 12 X 2 CONCEALED MS BOXES",
+    "4 X 8 X 2 CONCEALED MS BOXES",
+    "4 X 10 X 2 CONCEALED MS BOXES",
+    "8 X 6 X 3 CONCEALED MS BOXES",
+    "8 X 10 X 3 CONCEALED MS BOXES",
+    "8 X 12 X 3 CONCEALED MS BOXES",
+    "8 X 12 X 2 CONCEALED MS BOXES",
+    "4 X 12 X 2 CONCEALED MS BOXES",
+    "6 X 4 X 2½ CONCEALED MS BOXES",
+    "4 X 4 X 2½ CONCEALED MS BOXES",
     "FAN BOX WITH ROD ",
     "3 LED BOWL",
     "6 LED BOWL",
@@ -104,8 +107,20 @@ const InvoiceForm = ({ onSubmit }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/api/invoice', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Invoice created successfully:', response.data);
+      onSubmit(formData);
+    } catch (error) {
+      console.error('Error uploading the invoice details:', error);
+    }
     onSubmit(formData);
   };
 

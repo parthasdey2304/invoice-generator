@@ -13,6 +13,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.16.1",
+    "axios": "^1.7.7",
     "buffer": "^6.0.3",
     "formik": "^2.4.6",
     "googleapis": "^144.0.0",
