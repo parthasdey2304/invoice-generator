@@ -71,6 +71,7 @@ const InvoiceForm = ({ onSubmit }) => {
     "12 X 14 X 2 CONCEALED MS BOXES",
     "10 X 14 X 2 CONCEALED MS BOXES",
     "10 X 12 X 2 CONCEALED MS BOXES",
+    "7 X 4 X 2½ CONCEALED MS BOXES",
     "FAN BOX WITH ROD ",
     "3 LED BOWL",
     "6 LED BOWL",
