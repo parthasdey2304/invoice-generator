@@ -23,10 +23,10 @@ const InvoiceForm = ({ onSubmit }) => {
     receiverCode: '',
     items: [{ description: '', hsnCode: '853810', quantity: '', rate: '' }],
     bankDetails: {
-      bankName: 'CANARA BANK',
-      branch: 'DHARMATALA',
-      accountNo: '127000140902',
-      ifscCode: 'CNRB0019592',
+      bankName: 'STATE BANK OF INDIA',
+      branch: 'TANGRA',
+      accountNo: '43776936082',
+      ifscCode: 'SBIN0003737',
     },
     taxDetails: {
       cgst: '0',
@@ -470,7 +470,7 @@ const InvoiceForm = ({ onSubmit }) => {
               type="text"
               name="bankName"
               value={formData.bankDetails.bankName}
-              readOnly
+              onChange={(e) => handleInputChange(e)}
               className={`w-full px-4 py-2 mt-2 border rounded-md ${
                 isDarkTheme ? 'bg-gray-600 text-gray-300 border-gray-700' : 'bg-gray-100 text-gray-700 border-gray-300'
               }`}
@@ -482,7 +482,7 @@ const InvoiceForm = ({ onSubmit }) => {
               type="text"
               name="branch"
               value={formData.bankDetails.branch}
-              readOnly
+              onChange={(e) => handleInputChange(e)}
               className={`w-full px-4 py-2 mt-2 border rounded-md ${
                 isDarkTheme ? 'bg-gray-600 text-gray-300 border-gray-700' : 'bg-gray-100 text-gray-700 border-gray-300'
               }`}
@@ -494,7 +494,7 @@ const InvoiceForm = ({ onSubmit }) => {
               type="text"
               name="accountNo"
               value={formData.bankDetails.accountNo}
-              readOnly
+              onChange={(e) => handleInputChange(e)}
               className={`w-full px-4 py-2 mt-2 border rounded-md ${
                 isDarkTheme ? 'bg-gray-600 text-gray-300 border-gray-700' : 'bg-gray-100 text-gray-700 border-gray-300'
               }`}
@@ -506,7 +506,7 @@ const InvoiceForm = ({ onSubmit }) => {
               type="text"
               name="ifscCode"
               value={formData.bankDetails.ifscCode}
-              readOnly
+              onChange={(e) => handleInputChange(e)}
               className={`w-full px-4 py-2 mt-2 border rounded-md ${
                 isDarkTheme ? 'bg-gray-600 text-gray-300 border-gray-700' : 'bg-gray-100 text-gray-700 border-gray-300'
               }`}
