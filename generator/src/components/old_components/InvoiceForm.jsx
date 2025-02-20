@@ -33,7 +33,6 @@ const InvoiceForm = ({ onSubmit }) => {
       sgst: '0',
       igst: '0',
       otherCharges: '0',
-      lessDiscount: '0',
       roundedOff: '0',
     },
     numberOfBags: '',
@@ -416,17 +415,6 @@ const InvoiceForm = ({ onSubmit }) => {
             <input
               type="number"
               name="otherCharges"
-              onChange={(e) => handleInputChange(e)}
-              className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
-                isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
-              }`}
-            />
-          </div>
-          <div>
-            <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Less Discount</label>
-            <input
-              type="number"
-              name="lessDiscount"
               onChange={(e) => handleInputChange(e)}
               className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
                 isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'

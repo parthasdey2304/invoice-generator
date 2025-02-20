@@ -85,18 +85,23 @@ const Invoice = ({ data }) => {
     copyLabels.forEach((label, index) => {
       if (index > 0) doc.addPage();
     
-      // Set background color to white for all copies
-      doc.setFillColor(255, 255, 255);
+      // Set background color based on the copy type
+      if (index < 3) {
+        // White color for the Buyer's copy
+        doc.setFillColor(255, 255, 255);
+      } else if (index === 3) {
+        // Lighter yellow for Seller's copy
+        doc.setFillColor(255, 253, 230);
+      } else {
+        // Lighter pink for Transport's copy
+        doc.setFillColor(255, 230, 240);
+      }
+
+      // Add background rectangle
       doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-      // Set stroke color to light blue, yellow and pink respectively for the different copies
-      if(index == 3) {
-        doc.setDrawColor(255, 180, 75);
-      } else if(index == 4) {
-        doc.setDrawColor(238, 130, 238);
-      } else {
-        doc.setDrawColor(2, 176, 252);
-      }
+      // Set stroke color to light blue
+      doc.setDrawColor(2, 176, 252);
 
       // Add copy label
       doc.setFontSize(11);
@@ -154,19 +159,6 @@ const Invoice = ({ data }) => {
         tableRows.push(['', '', '', '', '', '', '']);
       }
       
-      // Set table line color based on the copy type
-      let tableLineColor;
-      if (index < 3) {
-        // Light blue color for the Buyer's copy
-        tableLineColor = [2, 176, 252];
-      } else if (index === 3) {
-        // Lighter yellow for Seller's copy
-        tableLineColor = [255, 180, 75];
-      } else {
-        // Lighter pink for Transport's copy
-        tableLineColor = [238, 130, 238];
-      }
-      
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
@@ -176,11 +168,11 @@ const Invoice = ({ data }) => {
           fontSize: 10, 
           cellPadding: 1, 
           halign: 'center', 
-          lineColor: tableLineColor,
-          fillColor: [255, 255, 255]
+          lineColor: [2, 176, 252],
+          fillColor: index === 3 ? [255, 253, 230] : (index === 4 ? [255, 230, 240] : null)
         },
         headStyles: { 
-          fillColor: tableLineColor, 
+          fillColor: [173, 216, 230], 
           textColor: 20, 
           halign: "center" 
         },
@@ -213,8 +205,7 @@ const Invoice = ({ data }) => {
       let sgst = (totalAmountBeforeTax * (parseFloat(data.sgst) || 0) * 0.01).toFixed(2);
       let igst = (totalAmountBeforeTax * (parseFloat(data.igst) || 0) * 0.01).toFixed(2);
       let otherCharges = parseFloat(data.otherCharges) || 0;
-      let lessDiscount = Math.abs(parseFloat(data.lessDiscount) || 0);
-      let totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges - lessDiscount).toFixed(2);
+      let totalAmountAfterTax = (parseFloat(totalAmountBeforeTax) + parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst) + otherCharges).toFixed(2);
       let totalAmountAfterRoundingOff = (parseFloat(roundOffValue(parseFloat(totalAmountAfterTax) || 0))).toFixed(2);
       let roundedOff =(totalAmountAfterRoundingOff - totalAmountAfterTax);
 
@@ -263,15 +254,10 @@ const Invoice = ({ data }) => {
       doc.text(`${igst.split('.')[0]}`, pageWidth - margin - 20, finalY + 20, { align: 'right' });
       doc.text(`${igst.split('.')[1]}`, pageWidth - margin - 5, finalY + 20, { align: 'right' });
 
-      if(otherCharges != 0) {
       doc.text(`ADD – Other Charges: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
       doc.text(`${otherCharges.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
       doc.text(`${otherCharges.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
-      } else {
-      doc.text(`ADD – Less Discount: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
-      doc.text(`-${lessDiscount.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
-      doc.text(`${lessDiscount.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
-      }
+
       doc.text(`ROUNDED OFF: `, pageWidth / 2 + 10, finalY + 30, { align: 'left' });
       doc.text(`${roundedOff.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 30, { align: 'right' });
       doc.text(`${roundedOff.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 30, { align: 'right' });
