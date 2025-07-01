@@ -100,29 +100,24 @@ export const invoiceService = {
   async getInvoices(page = 1, limit = 10, filters = {}) {
     try {
       console.log('Fetching invoices with filters:', filters);
+        // Build base query with filters
+      let baseQuery = supabase.from('invoices').select('*');
       
-      // First, get invoices with basic pagination
-      let invoicesQuery = supabase
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      // Apply filters
+      // Apply filters to base query
       if (filters.startDate && filters.endDate) {
-        invoicesQuery = invoicesQuery.gte('invoice_date', filters.startDate).lte('invoice_date', filters.endDate)
+        baseQuery = baseQuery.gte('invoice_date', filters.startDate).lte('invoice_date', filters.endDate);
       }
       if (filters.minAmount && filters.maxAmount) {
-        invoicesQuery = invoicesQuery.gte('total_amount', filters.minAmount).lte('total_amount', filters.maxAmount)
+        baseQuery = baseQuery.gte('total_amount', filters.minAmount).lte('total_amount', filters.maxAmount);
       }
 
-      // Get total count for pagination
-      const { count } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact', head: true })
+      // Get total count with same filters
+      const { count } = await baseQuery.select('*', { count: 'exact', head: true });
 
-      // Get paginated invoices
-      const { data: invoices, error: invoicesError } = await invoicesQuery
-        .range((page - 1) * limit, page * limit - 1)
+      // Get paginated invoices with filters and sorting
+      const { data: invoices, error: invoicesError } = await baseQuery
+        .order('created_at', { ascending: false })
+        .range((page - 1) * limit, page * limit - 1);
 
       if (invoicesError) {
         console.error('Error fetching invoices:', invoicesError);
@@ -214,14 +209,31 @@ export const invoiceService = {
         receivers: receiversMap[invoice.receiver_id] || null,
         invoice_items: itemsMap[invoice.id] || [],
         tax_details: taxDetailsMap[invoice.id] || {}
-      }));
-
-      // Apply customer filter if specified
+      }));      // Apply customer filter if specified
       let filteredInvoices = enrichedInvoices;
-      if (filters.customer) {
+      if (filters.customer && filters.customer.trim()) {
         filteredInvoices = enrichedInvoices.filter(invoice => 
-          invoice.receivers?.name?.toLowerCase().includes(filters.customer.toLowerCase())
+          invoice.receivers?.name?.toLowerCase().includes(filters.customer.toLowerCase().trim())
         );
+        
+        // Recalculate pagination for filtered results
+        const totalFiltered = filteredInvoices.length;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        filteredInvoices = filteredInvoices.slice(startIndex, endIndex);
+        
+        console.log('Applied customer filter, filtered invoices:', totalFiltered);
+        
+        return {
+          success: true,
+          data: filteredInvoices,
+          pagination: {
+            page,
+            limit,
+            total: totalFiltered,
+            pages: Math.ceil(totalFiltered / limit)
+          }
+        };
       }
 
       console.log('Enriched invoices:', filteredInvoices.length);

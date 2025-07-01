@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Navigation = () => {
-  const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    // Check localStorage or default to true
+const Navigation = () => {  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    // Check localStorage or default to false
     const saved = localStorage.getItem('darkMode');
-    return saved !== null ? JSON.parse(saved) : true;
+    return saved !== null ? JSON.parse(saved) : false;
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-
   useEffect(() => {
     // Apply theme on mount and save to localStorage
     if (isDarkTheme) {
@@ -18,6 +16,9 @@ const Navigation = () => {
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('darkMode', JSON.stringify(isDarkTheme));
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('themeChange', { detail: isDarkTheme }));
   }, [isDarkTheme]);
 
   const toggleTheme = () => {
