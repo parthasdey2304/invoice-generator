@@ -65,26 +65,38 @@ const Dashboard = () => {
 
   const loadDashboardData = async () => {
     setLoading(true);
-    try {      // Load invoices
+    try {
+      console.log('Starting loadDashboardData...');
+      
+      // Load invoices
       const invoicesResult = await invoiceService.getInvoices(
         pagination.page,
         pagination.limit,
         filters
       );
-        if (invoicesResult.success) {
+      
+      console.log('Invoices result:', invoicesResult);
+      
+      if (invoicesResult.success) {
         console.log('Dashboard: Invoices loaded:', invoicesResult.data.length);
         console.log('Dashboard: Sample invoice:', invoicesResult.data[0]);
         setInvoices(invoicesResult.data);
         setPagination(invoicesResult.pagination);
       } else {
+        console.error('Failed to load invoices:', invoicesResult.error);
         showError('Failed to load invoices');
       }
 
       // Load analytics
+      console.log('Loading analytics...');
       const analyticsResult = await invoiceService.getDashboardAnalytics();
+      console.log('Analytics result:', analyticsResult);
+      
       if (analyticsResult.success) {
+        console.log('Dashboard: Analytics loaded:', analyticsResult.data);
         setAnalytics(analyticsResult.data);
       } else {
+        console.error('Dashboard: Analytics error:', analyticsResult.error);
         showError('Failed to load analytics');
       }
     } catch (error) {

@@ -517,17 +517,44 @@ export const invoiceService = {
   // Get dashboard analytics
   async getDashboardAnalytics() {
     try {
-      const { count: totalInvoicesCount, error: totalError } = await supabase
+      console.log('Starting getDashboardAnalytics...');
+      
+      // Get count of total invoices - try different approach
+      const { data: allInvoices, error: countError } = await supabase
         .from('invoices')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
 
-      if (totalError) throw totalError
+      if (countError) {
+        console.error('Error getting invoices:', countError);
+        throw countError;
+      }
 
+      console.log('All invoices data:', allInvoices);
+      const totalInvoicesCount = allInvoices ? allInvoices.length : 0;
+      console.log('Total invoices count:', totalInvoicesCount);
+
+      // If no invoices, return early with zeros
+      if (totalInvoicesCount === 0) {
+        console.log('No invoices found, returning zero analytics');
+        return {
+          success: true,
+          data: {
+            totalInvoices: 0,
+            totalRevenue: 0,
+            totalTaxes: { cgst: 0, sgst: 0, igst: 0 },
+            totalTaxAmount: 0
+          }
+        };
+      }
+
+      // Get all invoices for revenue calculation
       const { data: totalRevenue, error: revenueError } = await supabase
         .from('invoices')
         .select('total_amount')
 
       if (revenueError) throw revenueError
+
+      console.log('Revenue data:', totalRevenue);
 
       // Get invoices with their items and tax details to calculate actual tax amounts
       const { data: invoiceData, error: invoiceError } = await supabase
@@ -581,14 +608,18 @@ export const invoiceService = {
         igst: Math.round(taxes.igst * 100) / 100
       }
 
+      const analyticsData = {
+        totalInvoices: totalInvoicesCount || 0,
+        totalRevenue: Math.round(revenue * 100) / 100,
+        totalTaxes: roundedTaxes,
+        totalTaxAmount: Math.round((roundedTaxes.cgst + roundedTaxes.sgst + roundedTaxes.igst) * 100) / 100
+      };
+
+      console.log('Final analytics data:', analyticsData);
+
       return {
         success: true,
-        data: {
-          totalInvoices: totalInvoicesCount || 0,
-          totalRevenue: Math.round(revenue * 100) / 100,
-          totalTaxes: roundedTaxes,
-          totalTaxAmount: Math.round((roundedTaxes.cgst + roundedTaxes.sgst + roundedTaxes.igst) * 100) / 100
-        }
+        data: analyticsData
       }
     } catch (error) {
       console.error('Error fetching dashboard analytics:', error)

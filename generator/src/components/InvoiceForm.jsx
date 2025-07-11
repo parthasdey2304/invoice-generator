@@ -6,12 +6,18 @@
  * @returns {JSX.Element} - The rendered invoice form component.
  */
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { invoiceService } from '../services/invoiceService.js';
 import ItemManagementModal from './ItemManagementModal.jsx';
 import { useNotification } from './NotificationProvider.jsx';
 
 const InvoiceForm = ({ onSubmit }) => {
   const { success, error: showError } = useNotification();
+  const navigate = useNavigate();
+  
+  // Add edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [originalInvoiceId, setOriginalInvoiceId] = useState(null);
   
   const [formData, setFormData] = useState({
     invoiceNo: '',
@@ -167,6 +173,8 @@ const InvoiceForm = ({ onSubmit }) => {
       try {
         const parsedData = JSON.parse(editData);
         setFormData(parsedData);
+        setIsEditMode(true);
+        setOriginalInvoiceId(parsedData.originalId || null);
         // Clear the edit data from localStorage after loading
         localStorage.removeItem('editInvoiceData');
         success('Invoice loaded for editing!');
@@ -279,6 +287,8 @@ const InvoiceForm = ({ onSubmit }) => {
           isEdit: false,
           originalId: null
         }));
+        setIsEditMode(false);
+        setOriginalInvoiceId(null);
       }
     } catch (error) {
       console.error('Error submitting invoice:', error);
@@ -294,6 +304,25 @@ const InvoiceForm = ({ onSubmit }) => {
       <h1 className={`text-center text-5xl font-bold pt-16 py-10 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>
         Invoice Generator
       </h1>
+
+      {/* Back to Dashboard button - only show in edit mode */}
+      {isEditMode && (
+        <div className="max-w-4xl mx-auto mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-colors ${
+              isDarkTheme
+                ? 'bg-gray-700 text-white hover:bg-gray-600 border border-gray-600'
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300'
+            }`}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+      )}
 
       {dbConnectionError && (
         <div className="max-w-4xl mx-auto mb-6">

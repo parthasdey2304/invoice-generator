@@ -1,15 +1,24 @@
 {
-  "name": "image-to-invoice-generator",
+  "name": "invoice-generator-desktop",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Professional Invoice Generator Desktop Application",
+  "main": "public/electron.cjs",
   "type": "module",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "build:netlify": "vite build",
-    "build:vercel": "vite build"
+    "build:vercel": "vite build",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron-pack": "npm run build && electron-builder",
+    "preelectron-pack": "npm run build",
+    "dist": "npm run build && electron-builder --publish=never",
+    "build:electron": "npm run build && electron-builder"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -37,10 +46,58 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.2.0",
+    "electron": "^37.2.1",
+    "electron-builder": "^26.0.12",
+    "electron-is-dev": "^3.0.1",
+    "electron-reload": "^2.0.0-alpha.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.invoicegenerator.app",
+    "productName": "Invoice Generator",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "public/electron.cjs",
+      "public/preload.cjs",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
