@@ -251,48 +251,69 @@ const Invoice = ({ data }) => {
       doc.text(`${totalAmountBeforeTax.split('.')[0]}`, pageWidth - margin - 20, finalY + 5, { align: 'right' });
       doc.text(`${totalAmountBeforeTax.split('.')[1]}`, pageWidth - margin - 5, finalY + 5, { align: 'right' });
 
-      doc.text(`ADD – CGST @ ${data.cgst}% : `, pageWidth / 2 + 10 , finalY + 10, { align: 'left' });
-      doc.text(`${cgst.split('.')[0]}`, pageWidth - margin - 20, finalY + 10, { align: 'right' });
-      doc.text(`${cgst.split('.')[1]}`, pageWidth - margin - 5, finalY + 10, { align: 'right' });
+      let currentLineOffset = 10;
 
-      doc.text(`ADD – SGST @ ${data.sgst}% : `, pageWidth / 2 + 10, finalY + 15, { align: 'left' });
-      doc.text(`${sgst.split('.')[0]}`, pageWidth - margin - 20, finalY + 15, { align: 'right' });
-      doc.text(`${sgst.split('.')[1]}`, pageWidth - margin - 5, finalY + 15, { align: 'right' });
-
-      doc.text(`ADD – IGST @ ${data.igst}% :`, pageWidth / 2 + 10, finalY + 20, { align: 'left' });
-      doc.text(`${igst.split('.')[0]}`, pageWidth - margin - 20, finalY + 20, { align: 'right' });
-      doc.text(`${igst.split('.')[1]}`, pageWidth - margin - 5, finalY + 20, { align: 'right' });
-
-      if(otherCharges != 0) {
-        doc.text(`ADD – Other Charges: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
-        doc.text(`${otherCharges.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
-        doc.text(`${otherCharges.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
-      } else if(otherCharges == 0 && lessDiscount == 0) {
-        doc.text(`ADD – Other Charges: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
-        doc.text(`${otherCharges.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
-        doc.text(`${otherCharges.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
+      // Show CGST if the checkbox is checked (even if value is 0)
+      if (data.showCgst) {
+        doc.text(`ADD – CGST @ ${data.cgst || 0}% : `, pageWidth / 2 + 10 , finalY + currentLineOffset, { align: 'left' });
+        doc.text(`${cgst.split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${cgst.split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
       }
-      else {
-        doc.text(`LESS DISCOUNT: `, pageWidth / 2 + 10, finalY + 25, { align: 'left' });
-        doc.text(`-${lessDiscount.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 25, { align: 'right' });
-        doc.text(`${lessDiscount.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 25, { align: 'right' });
+
+      // Show SGST if the checkbox is checked (even if value is 0)
+      if (data.showSgst) {
+        doc.text(`ADD – SGST @ ${data.sgst || 0}% : `, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+        doc.text(`${sgst.split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${sgst.split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
       }
-      doc.text(`ROUNDED OFF: `, pageWidth / 2 + 10, finalY + 30, { align: 'left' });
-      doc.text(`${roundedOff.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + 30, { align: 'right' });
-      doc.text(`${roundedOff.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + 30, { align: 'right' });
 
-      doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 10, finalY + 35, { align: 'left' });
-      doc.text(`${totalAmountAfterRoundingOff.split('.')[0]}`, pageWidth - margin - 20, finalY + 35, { align: 'right' });
-      doc.text(`${totalAmountAfterRoundingOff.split('.')[1]}`, pageWidth - margin - 5, finalY + 35, { align: 'right' });
+      // Show IGST if the checkbox is checked (even if value is 0)
+      if (data.showIgst) {
+        doc.text(`ADD – IGST @ ${data.igst || 0}% :`, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+        doc.text(`${igst.split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${igst.split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
+      }
 
-      // Box for bank details
+      // Show Other Charges if checkbox is checked (even if value is 0)
+      if (data.showOtherCharges) {
+        doc.text(`ADD – Other Charges: `, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+        doc.text(`${otherCharges.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${otherCharges.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
+      }
+
+      // Show Less Discount if toggle is set to Less Discount
+      if (data.showLessDiscount) {
+        doc.text(`LESS DISCOUNT: `, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+        doc.text(`-${lessDiscount.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${lessDiscount.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
+      }
+
+      // Show Rounded Off if toggle is set to Rounded Off
+      if (data.showRoundedOff) {
+        doc.text(`ROUNDED OFF: `, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+        doc.text(`${roundedOff.toFixed(2).split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+        doc.text(`${roundedOff.toFixed(2).split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+        currentLineOffset += 5;
+      }
+
+      doc.text(`TOTAL AMOUNT AFTER TAX: `, pageWidth / 2 + 10, finalY + currentLineOffset, { align: 'left' });
+      doc.text(`${totalAmountAfterRoundingOff.split('.')[0]}`, pageWidth - margin - 20, finalY + currentLineOffset, { align: 'right' });
+      doc.text(`${totalAmountAfterRoundingOff.split('.')[1]}`, pageWidth - margin - 5, finalY + currentLineOffset, { align: 'right' });
+
+      // Box for bank details - adjust position based on currentLineOffset
+      const bankDetailsY = finalY + currentLineOffset + 10;
       doc.setFontSize(11);
-      doc.rect(margin, finalY + 40, pageWidth - 2 * margin, 30);
-      doc.text('BANK DETAILS', margin + 2, finalY + 46);
-      doc.text(`BANK – ${data.bankDetails.bankName}`, margin + 2, finalY + 51);
-      doc.text(`BRANCH – ${data.bankDetails.branch}`, margin + 2, finalY + 56);
-      doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, finalY + 61);
-      doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, finalY + 66);
+      doc.rect(margin, bankDetailsY, pageWidth - 2 * margin, 30);
+      doc.text('BANK DETAILS', margin + 2, bankDetailsY + 6);
+      doc.text(`BANK – ${data.bankDetails.bankName}`, margin + 2, bankDetailsY + 11);
+      doc.text(`BRANCH – ${data.bankDetails.branch}`, margin + 2, bankDetailsY + 16);
+      doc.text(`BANK A/C NO – ${data.bankDetails.accountNo}`, margin + 2, bankDetailsY + 21);
+      doc.text(`BANK IFSC CODE – ${data.bankDetails.ifscCode}`, margin + 2, bankDetailsY + 26);
 
       QRCode.toDataURL(data.pdfLink, { width: 100, margin: 1 }, (err, url) => {
         if (err) {
@@ -300,13 +321,13 @@ const Invoice = ({ data }) => {
           return;
         }
         
-        doc.text("SCAN HERE", pageWidth - margin - 40, finalY + 50, { align: 'right' });
-        doc.text("FOR PRODUCT DETAILS", pageWidth - margin - 30, finalY + 60, { align: 'right' });
-        doc.addImage(url, 'PNG', pageWidth - margin - 28, finalY + 42, 26, 26);
+        doc.text("SCAN HERE", pageWidth - margin - 40, bankDetailsY + 10, { align: 'right' });
+        doc.text("FOR PRODUCT DETAILS", pageWidth - margin - 30, bankDetailsY + 20, { align: 'right' });
+        doc.addImage(url, 'PNG', pageWidth - margin - 28, bankDetailsY + 2, 26, 26);
       });
 
-      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, finalY + 77);
-      doc.text('E. & O.E', pageWidth - margin - 30, finalY + 77, { align: 'left' });
+      doc.text('TERMS & CONDITIONS – PLEASE PAY BY A/C BY RTGS/NEFT/BANK TRANSFER.', margin, bankDetailsY + 37);
+      doc.text('E. & O.E', pageWidth - margin - 30, bankDetailsY + 37, { align: 'left' });
 
       doc.text('AUTHORISED SIGNATORY', pageWidth - margin, pageHeight - margin + 2, { align: 'right' });
     });

@@ -4,6 +4,7 @@ import InvoiceTable from '../components/dashboard/InvoiceTable.jsx';
 import SummaryCards from '../components/dashboard/SummaryCards.jsx';
 import FilterBar from '../components/dashboard/FilterBar.jsx';
 import InvoiceDetailsModal from '../components/dashboard/InvoiceDetailsModal.jsx';
+import DeleteConfirmationModal from '../components/dashboard/DeleteConfirmationModal.jsx';
 import { useNotification } from '../components/NotificationProvider.jsx';
 
 const Dashboard = () => {
@@ -53,6 +54,8 @@ const Dashboard = () => {
     pages: 0  });
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -104,6 +107,55 @@ const Dashboard = () => {
     if (result.success) {
       setSelectedInvoice(result.data);
       setIsDetailsModalOpen(true);
+    }
+  };
+
+  const handleInvoiceDelete = (invoice) => {
+    setInvoiceToDelete(invoice);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!invoiceToDelete) return;
+
+    try {
+      // Optimistically remove from UI for immediate feedback
+      const originalInvoices = [...invoices];
+      setInvoices(prev => prev.filter(inv => inv.id !== invoiceToDelete.id));
+      
+      const result = await invoiceService.deleteInvoice(invoiceToDelete.id);
+      
+      if (result.success) {
+        showSuccess('Invoice deleted successfully!');
+        
+        // Check if we need to go to previous page
+        const currentPageItemCount = originalInvoices.length;
+        const shouldGoToPreviousPage = currentPageItemCount === 1 && pagination.page > 1;
+        
+        if (shouldGoToPreviousPage) {
+          setPagination(prev => ({ ...prev, page: prev.page - 1 }));
+        } else {
+          // Reload the dashboard data to ensure consistency and update analytics
+          await loadDashboardData();
+        }
+        
+        // Close modal after operations complete
+        setIsDeleteModalOpen(false);
+        setInvoiceToDelete(null);
+      } else {
+        // Revert optimistic update on failure
+        setInvoices(originalInvoices);
+        showError('Failed to delete invoice: ' + result.error);
+        setIsDeleteModalOpen(false);
+        setInvoiceToDelete(null);
+      }
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      // Revert optimistic update on error
+      await loadDashboardData();
+      showError('Error deleting invoice. Please try again.');
+      setIsDeleteModalOpen(false);
+      setInvoiceToDelete(null);
     }
   };
   const handleExportCSV = async () => {
@@ -203,6 +255,7 @@ const Dashboard = () => {
           pagination={pagination}
           onPageChange={handlePageChange}
           onInvoiceClick={handleInvoiceClick}
+          onInvoiceDelete={handleInvoiceDelete}
           isDarkTheme={isDarkTheme}
         />
 
@@ -213,6 +266,19 @@ const Dashboard = () => {
           invoice={selectedInvoice}
           isDarkTheme={isDarkTheme}
           onInvoiceUpdated={loadDashboardData}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setInvoiceToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          invoiceNumber={invoiceToDelete?.invoice_no}
+          customerName={invoiceToDelete?.receivers?.name}
+          isDarkTheme={isDarkTheme}
         />
       </div>
     </div>

@@ -32,18 +32,18 @@ const InvoiceForm = ({ onSubmit }) => {
       ifscCode: 'SBIN0003737',
     },
     taxDetails: {
-      cgst: '0',
-      sgst: '0',
+      cgst: '9',
+      sgst: '9',
       igst: '0',
       otherCharges: '0',
       lessDiscount: '0',
       roundedOff: '0',
-      showCgst: false,
-      showSgst: false,
-      showIgst: false,
-      showOtherCharges: false,
+      showCgst: true,
+      showSgst: true,
+      showIgst: true,
+      showOtherCharges: true,
       showLessDiscount: false,
-      showRoundedOff: false,
+      showRoundedOff: true, // Default to Rounded Off
     },
     numberOfBags: '',
     pdfLink: 'https://drive.google.com/file/d/1eUYyZqZBuYCdWR5T1sz25yTQgkXq_Pcl/view?usp=sharing'
@@ -206,7 +206,26 @@ const InvoiceForm = ({ onSubmit }) => {
       if (result.success) {
         console.log('Invoice created successfully:', result.invoice);
         success('🎉 Invoice created successfully!');
-        onSubmit(formData);
+        
+        // Flatten the tax details for the invoice generator
+        const flattenedData = {
+          ...formData,
+          // Flatten tax details to match what InvoiceGenerator expects
+          cgst: formData.taxDetails.cgst,
+          sgst: formData.taxDetails.sgst,
+          igst: formData.taxDetails.igst,
+          otherCharges: formData.taxDetails.otherCharges,
+          lessDiscount: formData.taxDetails.lessDiscount,
+          roundedOff: formData.taxDetails.roundedOff,
+          showCgst: formData.taxDetails.showCgst,
+          showSgst: formData.taxDetails.showSgst,
+          showIgst: formData.taxDetails.showIgst,
+          showOtherCharges: formData.taxDetails.showOtherCharges,
+          showLessDiscount: formData.taxDetails.showLessDiscount,
+          showRoundedOff: formData.taxDetails.showRoundedOff,
+        };
+        
+        onSubmit(flattenedData);
         
         // Reload suggestions to include any new data
         loadItemSuggestions();
@@ -528,7 +547,7 @@ const InvoiceForm = ({ onSubmit }) => {
         </div>
 
         <h3 className={`text-2xl font-bold mt-8 mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Tax Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <div className="flex items-center mb-2">
               <input
@@ -613,47 +632,82 @@ const InvoiceForm = ({ onSubmit }) => {
               }`}
             />
           </div>
+        </div>
+
+        <div className="border-t pt-6">
+          <h4 className={`text-lg font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Adjustment Settings</h4>
           <div>
             <div className="flex items-center mb-2">
-              <input
-                type="checkbox"
-                name="showLessDiscount"
-                checked={formData.taxDetails.showLessDiscount}
-                onChange={(e) => handleInputChange(e, null, 'taxDetails')}
-                className="mr-2"
-              />
-              <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Less Discount</label>
+              <span className={`block mr-4 ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>
+                Adjustment Type:
+              </span>
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="adjustmentType"
+                    value="lessDiscount"
+                    checked={formData.taxDetails.showLessDiscount}
+                    onChange={(e) => {
+                      const newTaxDetails = {
+                        ...formData.taxDetails,
+                        showLessDiscount: true,
+                        showRoundedOff: false
+                      };
+                      setFormData({ ...formData, taxDetails: newTaxDetails });
+                    }}
+                    className="mr-2"
+                  />
+                  <span className={`${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Less Discount</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="adjustmentType"
+                    value="roundedOff"
+                    checked={formData.taxDetails.showRoundedOff}
+                    onChange={(e) => {
+                      const newTaxDetails = {
+                        ...formData.taxDetails,
+                        showLessDiscount: false,
+                        showRoundedOff: true
+                      };
+                      setFormData({ ...formData, taxDetails: newTaxDetails });
+                    }}
+                    className="mr-2"
+                  />
+                  <span className={`${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Rounded Off</span>
+                </label>
+              </div>
             </div>
-            <input
-              type="number"
-              name="lessDiscount"
-              value={formData.taxDetails.lessDiscount}
-              onChange={(e) => handleInputChange(e, null, 'taxDetails')}
-              className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
-                isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
-              }`}
-            />
-          </div>
-          <div>
-            <div className="flex items-center mb-2">
-              <input
-                type="checkbox"
-                name="showRoundedOff"
-                checked={formData.taxDetails.showRoundedOff}
-                onChange={(e) => handleInputChange(e, null, 'taxDetails')}
-                className="mr-2"
-              />
-              <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Rounded Off</label>
-            </div>
-            <input
-              type="number"
-              name="roundedOff"
-              value={formData.taxDetails.roundedOff}
-              onChange={(e) => handleInputChange(e, null, 'taxDetails')}
-              className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
-                isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
-              }`}
-            />
+            {formData.taxDetails.showLessDiscount && (
+              <div>
+                <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Less Discount Amount</label>
+                <input
+                  type="number"
+                  name="lessDiscount"
+                  value={formData.taxDetails.lessDiscount}
+                  onChange={(e) => handleInputChange(e, null, 'taxDetails')}
+                  className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
+                    isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
+                  }`}
+                />
+              </div>
+            )}
+            {formData.taxDetails.showRoundedOff && (
+              <div>
+                <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Rounded Off Amount</label>
+                <input
+                  type="number"
+                  name="roundedOff"
+                  value={formData.taxDetails.roundedOff}
+                  onChange={(e) => handleInputChange(e, null, 'taxDetails')}
+                  className={`w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring ${
+                    isDarkTheme ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500' : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-300'
+                  }`}
+                />
+              </div>
+            )}
           </div>
         </div>
 

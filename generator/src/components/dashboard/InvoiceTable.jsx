@@ -6,6 +6,7 @@ const InvoiceTable = ({
   pagination, 
   onPageChange, 
   onInvoiceClick, 
+  onInvoiceDelete,
   isDarkTheme 
 }) => {
   const formatDate = (dateString) => {
@@ -221,19 +222,31 @@ const InvoiceTable = ({
                       {invoice.invoice_items?.length || 0} items
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onInvoiceClick(invoice);
-                        }}
-                        className={`${
-                          isDarkTheme
-                            ? 'text-blue-400 hover:text-blue-300'
-                            : 'text-blue-600 hover:text-blue-500'
-                        }`}
-                      >
-                        View Details
-                      </button>
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onInvoiceClick(invoice);
+                          }}
+                          className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
+                            isDarkTheme
+                              ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/20'
+                              : 'text-blue-600 hover:text-blue-500 hover:bg-blue-50'
+                          }`}
+                        >
+                          View Details
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onInvoiceDelete(invoice);
+                          }}
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors"
+                          title="Delete Invoice"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
