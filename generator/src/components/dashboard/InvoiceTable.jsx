@@ -222,7 +222,7 @@ const InvoiceTable = ({
                       {invoice.invoice_items?.length || 0} items
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-center justify-between space-x-4">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -241,7 +241,7 @@ const InvoiceTable = ({
                             e.stopPropagation();
                             onInvoiceDelete(invoice);
                           }}
-                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors"
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors ml-auto"
                           title="Delete Invoice"
                         >
                           🗑️ Delete

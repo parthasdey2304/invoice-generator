@@ -604,13 +604,19 @@ export const invoiceService = {
       return sum + ((parseFloat(item.quantity) || 0) * (parseFloat(item.rate) || 0))
     }, 0)
 
-    const cgst = parseFloat(invoiceData.taxDetails.cgst) || 0
-    const sgst = parseFloat(invoiceData.taxDetails.sgst) || 0
-    const igst = parseFloat(invoiceData.taxDetails.igst) || 0
+    // Calculate taxes as percentages of items total
+    const cgstRate = parseFloat(invoiceData.taxDetails.cgst) || 0
+    const sgstRate = parseFloat(invoiceData.taxDetails.sgst) || 0
+    const igstRate = parseFloat(invoiceData.taxDetails.igst) || 0
+    
+    const cgstAmount = (itemsTotal * cgstRate) / 100
+    const sgstAmount = (itemsTotal * sgstRate) / 100
+    const igstAmount = (itemsTotal * igstRate) / 100
+    
     const otherCharges = parseFloat(invoiceData.taxDetails.otherCharges) || 0
     const lessDiscount = parseFloat(invoiceData.taxDetails.lessDiscount) || 0
     const roundedOff = parseFloat(invoiceData.taxDetails.roundedOff) || 0
 
-    return itemsTotal + cgst + sgst + igst + otherCharges - lessDiscount + roundedOff
+    return itemsTotal + cgstAmount + sgstAmount + igstAmount + otherCharges - lessDiscount + roundedOff
   }
 }

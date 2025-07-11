@@ -160,6 +160,23 @@ const InvoiceForm = ({ onSubmit }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Load edit data if available
+  useEffect(() => {
+    const editData = localStorage.getItem('editInvoiceData');
+    if (editData) {
+      try {
+        const parsedData = JSON.parse(editData);
+        setFormData(parsedData);
+        // Clear the edit data from localStorage after loading
+        localStorage.removeItem('editInvoiceData');
+        success('Invoice loaded for editing!');
+      } catch (error) {
+        console.error('Error loading edit data:', error);
+        showError('Error loading invoice data for editing');
+      }
+    }
+  }, [success, showError]);
+
   const handleInputChange = (e, index, key) => {
     const { name, value, type, checked } = e.target;
     
@@ -201,38 +218,67 @@ const InvoiceForm = ({ onSubmit }) => {
     setIsLoading(true);
     
     try {
-      const result = await invoiceService.createInvoice(formData);
+      // Check if this is an edit operation
+      const isEdit = formData.isEdit && formData.originalId;
+      let result;
       
-      if (result.success) {
-        console.log('Invoice created successfully:', result.invoice);
-        success('🎉 Invoice created successfully!');
+      if (isEdit) {
+        // Update existing invoice
+        result = await invoiceService.updateInvoice(formData.originalId, formData);
         
-        // Flatten the tax details for the invoice generator
-        const flattenedData = {
-          ...formData,
-          // Flatten tax details to match what InvoiceGenerator expects
-          cgst: formData.taxDetails.cgst,
-          sgst: formData.taxDetails.sgst,
-          igst: formData.taxDetails.igst,
-          otherCharges: formData.taxDetails.otherCharges,
-          lessDiscount: formData.taxDetails.lessDiscount,
-          roundedOff: formData.taxDetails.roundedOff,
-          showCgst: formData.taxDetails.showCgst,
-          showSgst: formData.taxDetails.showSgst,
-          showIgst: formData.taxDetails.showIgst,
-          showOtherCharges: formData.taxDetails.showOtherCharges,
-          showLessDiscount: formData.taxDetails.showLessDiscount,
-          showRoundedOff: formData.taxDetails.showRoundedOff,
-        };
-        
-        onSubmit(flattenedData);
-        
-        // Reload suggestions to include any new data
-        loadItemSuggestions();
-        loadFieldSuggestions();
+        if (result.success) {
+          console.log('Invoice updated successfully:', result.invoice);
+          success('🎉 Invoice updated successfully!');
+        } else {
+          console.error('Error updating invoice:', result.error);
+          showError('Failed to update invoice: ' + result.error);
+          return;
+        }
       } else {
-        console.error('Error creating invoice:', result.error);
-        showError('Failed to create invoice: ' + result.error);
+        // Create new invoice
+        result = await invoiceService.createInvoice(formData);
+        
+        if (result.success) {
+          console.log('Invoice created successfully:', result.invoice);
+          success('🎉 Invoice created successfully!');
+        } else {
+          console.error('Error creating invoice:', result.error);
+          showError('Failed to create invoice: ' + result.error);
+          return;
+        }
+      }
+      
+      // Flatten the tax details for the invoice generator
+      const flattenedData = {
+        ...formData,
+        // Flatten tax details to match what InvoiceGenerator expects
+        cgst: formData.taxDetails.cgst,
+        sgst: formData.taxDetails.sgst,
+        igst: formData.taxDetails.igst,
+        otherCharges: formData.taxDetails.otherCharges,
+        lessDiscount: formData.taxDetails.lessDiscount,
+        roundedOff: formData.taxDetails.roundedOff,
+        showCgst: formData.taxDetails.showCgst,
+        showSgst: formData.taxDetails.showSgst,
+        showIgst: formData.taxDetails.showIgst,
+        showOtherCharges: formData.taxDetails.showOtherCharges,
+        showLessDiscount: formData.taxDetails.showLessDiscount,
+        showRoundedOff: formData.taxDetails.showRoundedOff,
+      };
+      
+      onSubmit(flattenedData);
+      
+      // Reload suggestions to include any new data
+      loadItemSuggestions();
+      loadFieldSuggestions();
+      
+      // Clear edit state if it was an edit operation
+      if (isEdit) {
+        setFormData(prev => ({
+          ...prev,
+          isEdit: false,
+          originalId: null
+        }));
       }
     } catch (error) {
       console.error('Error submitting invoice:', error);
@@ -301,7 +347,20 @@ const InvoiceForm = ({ onSubmit }) => {
       <form onSubmit={handleSubmit} className={`p-6 mx-auto max-w-4xl ${
         isDarkTheme ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-300'
       } border-2 shadow-lg rounded-lg py-10 md:my-10`}>
-        <h2 className={`text-3xl font-bold mb-6 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Invoice Details</h2>
+        <div className="mb-6">
+          <h2 className={`text-3xl font-bold ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>
+            {formData.isEdit ? 'Edit Invoice' : 'Invoice Details'}
+          </h2>
+          {formData.isEdit && (
+            <div className={`mt-2 p-3 rounded-lg ${
+              isDarkTheme ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-50 text-blue-700'
+            }`}>
+              <p className="text-sm">
+                ✏️ <strong>Edit Mode:</strong> You are editing invoice #{formData.invoiceNo}
+              </p>
+            </div>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={`block ${isDarkTheme ? 'text-gray-300' : 'text-gray-700'}`}>Invoice No</label>
@@ -777,9 +836,7 @@ const InvoiceForm = ({ onSubmit }) => {
               }`}
             />
           </div>
-        </div>
-
-        <div className="mt-8">
+        </div>        <div className="mt-8">
           <button
             type="submit"
             disabled={isLoading}
@@ -789,7 +846,10 @@ const InvoiceForm = ({ onSubmit }) => {
                 : 'bg-green-500 text-white hover:bg-green-600 focus:ring-green-300'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {isLoading ? 'Creating Invoice...' : 'Generate Invoice'}
+            {isLoading 
+              ? (formData.isEdit ? 'Updating Invoice...' : 'Creating Invoice...') 
+              : (formData.isEdit ? 'Update Invoice' : 'Generate Invoice')
+            }
           </button>
         </div>
       </form>

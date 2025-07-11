@@ -12,6 +12,20 @@ const HomePage = () => {
     setInvoiceData(data);
   };
 
+  // Check for PDF generation data from dashboard
+  React.useEffect(() => {
+    const pdfData = localStorage.getItem('generatePDFData');
+    if (pdfData) {
+      try {
+        const parsedData = JSON.parse(pdfData);
+        setInvoiceData(parsedData);
+        localStorage.removeItem('generatePDFData');
+      } catch (error) {
+        console.error('Error loading PDF data:', error);
+      }
+    }
+  }, []);
+
   return (
     <div>
       <InvoiceForm onSubmit={handleFormSubmit} />
