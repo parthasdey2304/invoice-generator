@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const FilterBar = ({ filters, onFilterChange, onExportCSV, isDarkTheme }) => {
+const FilterBar = ({ filters, onFilterChange, onExportTaxPDF, isDarkTheme }) => {
   const [localFilters, setLocalFilters] = useState(filters);
 
   const handleInputChange = (e) => {
@@ -37,14 +37,14 @@ const FilterBar = ({ filters, onFilterChange, onExportCSV, isDarkTheme }) => {
           🔍 Filters
         </h3>
         <button
-          onClick={onExportCSV}
+          onClick={onExportTaxPDF}
           className={`px-4 py-2 rounded-md font-medium ${
             isDarkTheme
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-green-500 text-white hover:bg-green-600'
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-red-500 text-white hover:bg-red-600'
           }`}
         >
-          📊 Export CSV
+          � Export Tax PDF
         </button>
       </div>
 

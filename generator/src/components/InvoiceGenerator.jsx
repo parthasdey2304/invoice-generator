@@ -149,9 +149,14 @@ const Invoice = ({ data }) => {
         ];
       });
       
-      // Ensure table has 15 rows
+      // Ensure table has 15 rows and add [GOLD NUT] in the last row
       while (tableRows.length < 15) {
         tableRows.push(['', '', '', '', '', '', '']);
+      }
+      
+      // Add [GOLD NUT] in the last row's description column
+      if (tableRows.length >= 15) {
+        tableRows[14][1] = '[GOLD NUT]'; // Set description of the 15th row (index 14) to [GOLD NUT]
       }
       
       // Set table line color based on the copy type

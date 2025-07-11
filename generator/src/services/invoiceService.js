@@ -174,10 +174,10 @@ export const invoiceService = {
         console.warn('Error fetching invoice items:', itemsError);
       }
 
-      // Fetch all tax details in one query
+      // Fetch all tax details in one query with show flags
       const { data: allTaxDetails, error: taxError } = await supabase
         .from('tax_details')
-        .select('invoice_id, cgst, sgst, igst, other_charges, less_discount, rounded_off')
+        .select('invoice_id, cgst, sgst, igst, other_charges, less_discount, rounded_off, show_cgst, show_sgst, show_igst, show_other_charges, show_less_discount, show_rounded_off')
         .in('invoice_id', invoiceIds);
 
       if (taxError) {
@@ -529,26 +529,65 @@ export const invoiceService = {
 
       if (revenueError) throw revenueError
 
-      const { data: taxSummary, error: taxError } = await supabase
-        .from('tax_details')
-        .select('cgst, sgst, igst')
+      // Get invoices with their items and tax details to calculate actual tax amounts
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .from('invoices')
+        .select(`
+          id,
+          total_amount,
+          invoice_items (
+            quantity,
+            rate
+          ),
+          tax_details (
+            cgst,
+            sgst,
+            igst,
+            show_cgst,
+            show_sgst,
+            show_igst
+          )
+        `)
 
-      if (taxError) throw taxError
+      if (invoiceError) throw invoiceError
 
       const revenue = (totalRevenue || []).reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0)
-      const taxes = (taxSummary || []).reduce((acc, tax) => ({
-        cgst: acc.cgst + (tax.cgst || 0),
-        sgst: acc.sgst + (tax.sgst || 0),
-        igst: acc.igst + (tax.igst || 0)
-      }), { cgst: 0, sgst: 0, igst: 0 })
+      
+      // Calculate actual tax amounts
+      const taxes = (invoiceData || []).reduce((acc, invoice) => {
+        // Calculate subtotal for this invoice
+        const subtotal = (invoice.invoice_items || []).reduce((sum, item) => {
+          return sum + ((item.quantity || 0) * (item.rate || 0))
+        }, 0)
+        
+        const taxDetails = invoice.tax_details?.[0] || {}
+        
+        // Calculate actual tax amounts only if the tax is enabled
+        const cgstAmount = taxDetails.show_cgst ? (subtotal * (taxDetails.cgst || 0) / 100) : 0
+        const sgstAmount = taxDetails.show_sgst ? (subtotal * (taxDetails.sgst || 0) / 100) : 0
+        const igstAmount = taxDetails.show_igst ? (subtotal * (taxDetails.igst || 0) / 100) : 0
+        
+        return {
+          cgst: acc.cgst + cgstAmount,
+          sgst: acc.sgst + sgstAmount,
+          igst: acc.igst + igstAmount
+        }
+      }, { cgst: 0, sgst: 0, igst: 0 })
+
+      // Round the final amounts to 2 decimal places
+      const roundedTaxes = {
+        cgst: Math.round(taxes.cgst * 100) / 100,
+        sgst: Math.round(taxes.sgst * 100) / 100,
+        igst: Math.round(taxes.igst * 100) / 100
+      }
 
       return {
         success: true,
         data: {
           totalInvoices: totalInvoicesCount || 0,
-          totalRevenue: revenue,
-          totalTaxes: taxes,
-          totalTaxAmount: taxes.cgst + taxes.sgst + taxes.igst
+          totalRevenue: Math.round(revenue * 100) / 100,
+          totalTaxes: roundedTaxes,
+          totalTaxAmount: Math.round((roundedTaxes.cgst + roundedTaxes.sgst + roundedTaxes.igst) * 100) / 100
         }
       }
     } catch (error) {
